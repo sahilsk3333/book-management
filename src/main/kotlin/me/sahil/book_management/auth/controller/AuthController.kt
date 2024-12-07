@@ -3,7 +3,6 @@ package me.sahil.book_management.auth.controller
 import jakarta.validation.Valid
 import me.sahil.book_management.auth.dto.LoginRequest
 import me.sahil.book_management.auth.dto.RegisterRequest
-import me.sahil.book_management.auth.mapper.toUserResponseDto
 import me.sahil.book_management.auth.service.AuthService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -25,7 +24,7 @@ class AuthController(private val authService: AuthService) {
         return try {
             val response = authService.register(registerRequest)
             val (user, message) = response
-            ResponseEntity.status(HttpStatus.CREATED).body(mapOf("message" to message, "user" to user.toUserResponseDto()))
+            ResponseEntity.status(HttpStatus.CREATED).body(mapOf("message" to message, "user" to user))
         } catch (ex: IllegalArgumentException) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mapOf("error" to "Bad Request", "message" to ex.message))
         }
@@ -41,7 +40,7 @@ class AuthController(private val authService: AuthService) {
         return try {
             val response = authService.login(loginRequest)
             val (user, token) = response
-            ResponseEntity.ok(mapOf("token" to token, "user" to user.toUserResponseDto()))
+            ResponseEntity.ok(mapOf("token" to token, "user" to user))
         } catch (ex: IllegalArgumentException) {
             ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(mapOf("error" to "Unauthorized", "message" to ex.message))

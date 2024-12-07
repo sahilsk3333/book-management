@@ -1,4 +1,4 @@
-package me.sahil.book_management.exception
+package me.sahil.book_management.common.exception
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import org.slf4j.LoggerFactory

@@ -36,6 +36,9 @@ data class User(
     val createdAt: LocalDateTime = LocalDateTime.now()
 ) {
 
+    // Secondary constructor for referencing by ID
+    constructor(id: Long) : this(id = id, name = "", email = "", password = "")
+
     // Default constructor for Hibernate (required)
     constructor() : this(0, "", "", "", Role.READER, null, 21, emptyList(), LocalDateTime.now())
 

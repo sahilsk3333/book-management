@@ -5,9 +5,9 @@ import io.jsonwebtoken.MalformedJwtException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import me.sahil.book_management.exception.TokenExpiredException
-import me.sahil.book_management.exception.TokenInvalidException
-import me.sahil.book_management.exception.TokenMissingException
+import me.sahil.book_management.common.exception.TokenExpiredException
+import me.sahil.book_management.common.exception.TokenInvalidException
+import me.sahil.book_management.common.exception.TokenMissingException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
@@ -19,30 +19,27 @@ class JwtAuthenticationFilter(
     private val jwtTokenProvider: JwtTokenProvider
 ) : OncePerRequestFilter() {
 
-    override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain) {
-        val authHeader = request.getHeader("Authorization")
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw TokenMissingException("Authorization token is missing")
-        }
+    override fun doFilterInternal(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        filterChain: FilterChain
+    ) {
+        val token = resolveToken(request)
 
-        val token = authHeader.removePrefix("Bearer ")
+        if (token != null && jwtTokenProvider.validateToken(token)) {
+            val authentication = jwtTokenProvider.getAuthentication(token)
 
-        try {
-            if (!jwtTokenProvider.validateToken(token)) {
-                throw TokenInvalidException("Invalid token")
-            }
-
-            val userDetails = jwtTokenProvider.getUserDetailsFromToken(token)
-            val authentication = UsernamePasswordAuthenticationToken(userDetails, null, emptyList())
+            // Set the authentication in the context
             SecurityContextHolder.getContext().authentication = authentication
-        } catch (e: ExpiredJwtException) {
-            throw TokenExpiredException("Token has expired")
-        } catch (e: MalformedJwtException) {
-            throw TokenInvalidException("Malformed token")
-        } catch (e: Exception) {
-            throw TokenInvalidException("Invalid token")
         }
 
-        chain.doFilter(request, response)
+        filterChain.doFilter(request, response)
+    }
+
+    private fun resolveToken(request: HttpServletRequest): String? {
+        val bearerToken = request.getHeader("Authorization") ?: return null
+        return if (bearerToken.startsWith("Bearer ")) {
+            bearerToken.substring(7)
+        } else null
     }
 }

@@ -1,11 +1,15 @@
 package me.sahil.book_management.auth.security
 
+import com.sun.security.auth.UserPrincipal
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
 import me.sahil.book_management.auth.entity.User
 import me.sahil.book_management.common.role.Role
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.stereotype.Component
 import java.util.*
 import javax.crypto.SecretKey
@@ -71,6 +75,18 @@ class JwtTokenProvider {
             false
         }
     }
+
+    fun getAuthentication(token: String): Authentication {
+        val userClaims = getUserDetailsFromToken(token)
+
+        // Create the authentication token using the userClaims directly
+        val authorities = listOf(SimpleGrantedAuthority("ROLE_${userClaims.role.name}"))
+
+        // You can use the UsernamePasswordAuthenticationToken here instead of creating a UserPrincipal
+        return UsernamePasswordAuthenticationToken(userClaims.email, token, authorities)
+    }
+
+
 
     // Check if the token has expired
     fun isTokenExpired(token: String): Boolean {

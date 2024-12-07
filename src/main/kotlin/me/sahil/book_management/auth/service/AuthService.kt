@@ -8,6 +8,8 @@ import me.sahil.book_management.auth.security.JwtTokenProvider
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import jakarta.transaction.Transactional
+import me.sahil.book_management.auth.dto.UserResponseDto
+import me.sahil.book_management.auth.mapper.toUserResponseDto
 import org.slf4j.LoggerFactory
 
 @Service
@@ -20,7 +22,7 @@ class AuthService(
     private val logger = LoggerFactory.getLogger(AuthService::class.java)
 
     @Transactional
-    fun register(registerRequest: RegisterRequest): Pair<User, String> {
+    fun register(registerRequest: RegisterRequest): Pair<UserResponseDto, String> {
         // Check if the email already exists
         val existingUser = userRepository.findByEmail(registerRequest.email)
         if (existingUser != null) {
@@ -45,11 +47,11 @@ class AuthService(
         userRepository.save(user)
 
         logger.info("User registered successfully with email: ${registerRequest.email}")
-        return Pair(user, "Author registered successfully!")
+        return Pair(user.toUserResponseDto(), "Author registered successfully!")
     }
 
     @Transactional
-    fun login(loginRequest: LoginRequest): Pair<User, String> {
+    fun login(loginRequest: LoginRequest): Pair<UserResponseDto, String> {
         // Find the user by email
         val user = userRepository.findByEmail(loginRequest.email)
             ?: throw IllegalArgumentException("Invalid email or password")
@@ -63,6 +65,6 @@ class AuthService(
         // Generate the JWT token and return it
         val token = jwtTokenProvider.generateToken(user)
         logger.info("User logged in successfully with email: ${loginRequest.email}")
-        return Pair(user, token)
+        return Pair(user.toUserResponseDto(), token)
     }
 }
