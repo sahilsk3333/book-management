@@ -84,9 +84,10 @@ class BookController(private val bookService: BookService) {
     fun deleteBook(
         @RequestHeader("Authorization") token: String,
         @PathVariable bookId: Long
-    ): ResponseEntity<String> {
+    ): ResponseEntity<Map<String, String>> {
         bookService.deleteBook(token.extractBearerToken(), bookId)
-        return ResponseEntity.ok("Book with ID $bookId has been deleted.")
+        val response = mapOf("message" to "Book with ID $bookId has been deleted.")
+        return ResponseEntity.ok(response)
     }
 
     /**

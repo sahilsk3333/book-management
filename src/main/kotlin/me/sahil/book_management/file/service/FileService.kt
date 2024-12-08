@@ -13,17 +13,21 @@ import java.nio.file.Path
 interface FileService {
 
     /**
-     * Upload a new file and store it.
+     * Uploads a new file and stores it in the appropriate location.
      *
-     * This method processes the uploaded file and stores it in the appropriate location.
-     * The file is associated with the user via the provided authorization token.
+     * This method processes the uploaded file, associates it with the user identified by the provided
+     * authorization token, and generates a URL for downloading the file. The file is stored on the server
+     * and can be retrieved using the generated download URL.
      *
-     * @param token The authorization token used to identify the user uploading the file.
+     * @param token The authorization token used to authenticate the user uploading the file.
+     * @param serverBaseUrl The base URL of the server, used to generate the file's download URL.
      * @param file The file to be uploaded.
-     * @return A [FileResponseDto] containing the details of the uploaded file.
-     * @throws TokenInvalidException if the token is invalid or missing.
+     * @return A [FileResponseDto] containing the details of the uploaded file, including the file name,
+     *         MIME type, and the generated download URL.
+     * @throws TokenInvalidException If the provided token is invalid or missing.
      */
-    fun uploadFile(token: String, file: MultipartFile): FileResponseDto
+    fun uploadFile(token: String, serverBaseUrl: String, file: MultipartFile): FileResponseDto
+
 
     /**
      * Mark a file as used.

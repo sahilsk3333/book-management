@@ -142,5 +142,19 @@ class GlobalExceptionHandler {
         logger.error("Token invalid: ${ex.message}") // Log invalid token error
         return ResponseEntity(ex.message, HttpStatus.UNAUTHORIZED)
     }
+
+
+    /**
+     * Handles access denial errors when a user tries to access a resource without the proper permissions.
+     * @param ex the exception thrown when a user does not have the required access
+     * @return a response entity with a 403 status and the error message
+     */
+    @ExceptionHandler(IllegalAccessException::class)
+    fun handleIllegalAccessException(ex: IllegalAccessException): ResponseEntity<Map<String, String>> {
+        logger.error("Access denied: ${ex.message}") // Log access denial error
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            .body(mapOf("error" to "Forbidden", "message" to (ex.message ?: "Access denied")))
+    }
+
 }
 

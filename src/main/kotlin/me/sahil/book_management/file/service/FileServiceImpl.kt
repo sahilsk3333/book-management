@@ -33,16 +33,18 @@ class FileServiceImpl(
     /**
      * Uploads a new file and stores it in the file storage system.
      *
-     * This method processes the uploaded file, stores it, and creates a new [File] entity in the database,
-     * linking it to the user identified by the provided JWT token. The file's download URL is generated and returned.
+     * This method processes the uploaded file, stores it in the appropriate location, and creates a new [File] entity
+     * in the database, associating it with the user identified by the provided JWT token. The method also generates
+     * a download URL for the uploaded file.
      *
      * @param token The JWT token used to authenticate and identify the user uploading the file.
+     * @param serverBaseUrl The base URL of the server, used to generate the file's download URL.
      * @param file The file to be uploaded.
-     * @return A [FileResponseDto] containing the file's metadata including file name, MIME type, and download URL.
-     * @throws TokenInvalidException if the JWT token is invalid.
+     * @return A [FileResponseDto] containing the file's metadata, including file name, MIME type, and the generated download URL.
+     * @throws TokenInvalidException If the JWT token is invalid.
      */
     @Transactional
-    override fun uploadFile(token: String, file: MultipartFile): FileResponseDto {
+    override fun uploadFile(token: String, serverBaseUrl: String, file: MultipartFile): FileResponseDto {
         // Get user from token
         val userClaims = jwtTokenProvider.getUserDetailsFromToken(token)
 
@@ -54,7 +56,7 @@ class FileServiceImpl(
             fileName = fileName,
             mimeType = file.contentType ?: "application/octet-stream",
             user = User(userClaims.id),  // Link the file to the user
-            downloadUrl = "http://localhost:8080/api/files/download/$fileName",  // Generate download URL
+            downloadUrl = "$serverBaseUrl/api/files/download/$fileName",  // Generate download URL
             isUsed = false
         )
 

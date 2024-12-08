@@ -6,6 +6,7 @@ import me.sahil.book_management.core.route.ApiRoutes
 import me.sahil.book_management.core.utils.extractBearerToken
 import me.sahil.book_management.file.dto.FileResponseDto
 import me.sahil.book_management.file.service.FileService
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
@@ -25,6 +26,9 @@ import java.io.FileInputStream
 @RequestMapping(ApiRoutes.FileRoutes.PATH)
 class FileController(private val fileService: FileService) {
 
+    @Value("\${server.base-url}")
+    lateinit var serverBaseUrl: String
+
     /**
      * Endpoint to upload a file.
      *
@@ -41,7 +45,7 @@ class FileController(private val fileService: FileService) {
         @RequestHeader("Authorization") token: String,
         @RequestParam("file") file: MultipartFile
     ): ResponseEntity<Map<String, Any>> {
-        val uploadedFile = fileService.uploadFile(token.extractBearerToken(), file)
+        val uploadedFile = fileService.uploadFile(token.extractBearerToken(), serverBaseUrl = serverBaseUrl, file)
         return ResponseEntity.ok(mapOf("message" to "File uploaded successfully", "file" to uploadedFile))
     }
 
@@ -88,7 +92,7 @@ class FileController(private val fileService: FileService) {
      */
     @GetMapping(ApiRoutes.FileRoutes.DOWNLOAD_FILE)
     fun downloadFile(@PathVariable fileName: String, response: HttpServletResponse) {
-        val file = fileService.getFileByUrl("http://localhost:8080/api/files/download/$fileName")  // Fetch file by URL
+        val file = fileService.getFileByUrl("$serverBaseUrl/api/files/download/$fileName")  // Fetch file by URL
 
         if (file == null) {
             response.status = HttpServletResponse.SC_NOT_FOUND
