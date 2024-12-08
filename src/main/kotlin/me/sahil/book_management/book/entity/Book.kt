@@ -1,9 +1,9 @@
 package me.sahil.book_management.book.entity
 
 import jakarta.persistence.*
-import jakarta.validation.constraints.Pattern
 import me.sahil.book_management.user.entity.User
 import org.hibernate.validator.constraints.ISBN
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "books")
@@ -25,8 +25,11 @@ data class Book(
 
     @Column(nullable = false, unique = true)
     @ISBN(message = "Invalid ISBN format", type = ISBN.Type.ISBN_13)
-    val isbn: String // ISBN field with validation pattern
+    val isbn: String, // ISBN field with validation pattern
+
+    @Column(nullable = false)
+    val createdAt: LocalDateTime = LocalDateTime.now()
 ) {
-    constructor() : this(0, User(), "", null, null, "")
+    constructor() : this(0, User(), "", null, null, "", LocalDateTime.now())
 }
 

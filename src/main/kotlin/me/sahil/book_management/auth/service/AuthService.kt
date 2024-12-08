@@ -8,6 +8,7 @@ import me.sahil.book_management.auth.security.JwtTokenProvider
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import jakarta.transaction.Transactional
+import me.sahil.book_management.file.repository.FileRepository
 import me.sahil.book_management.user.dto.UserResponseDto
 import me.sahil.book_management.user.mapper.toUserResponseDto
 import org.slf4j.LoggerFactory
@@ -16,7 +17,8 @@ import org.slf4j.LoggerFactory
 class AuthService(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder,
-    private val jwtTokenProvider: JwtTokenProvider
+    private val jwtTokenProvider: JwtTokenProvider,
+    private val fileRepository: FileRepository
 ) {
 
     private val logger = LoggerFactory.getLogger(AuthService::class.java)
@@ -46,8 +48,22 @@ class AuthService(
         // Save the user to the database
         userRepository.save(user)
 
+        // If the image URL is provided, check if it exists in the file table and mark as used
+        registerRequest.image?.let { imageUrl ->
+            val file = fileRepository.findByDownloadUrl(imageUrl)
+            if (file != null) {
+                // Mark the file as used
+                fileRepository.save(file.copy(
+                    isUsed = true
+                ))
+                logger.info("Image URL $imageUrl marked as used")
+            } else {
+                logger.warn("No file found with the provided image URL: $imageUrl")
+            }
+        }
+
         logger.info("User registered successfully with email: ${registerRequest.email}")
-        return Pair(user.toUserResponseDto(), "Author registered successfully!")
+        return Pair(user.toUserResponseDto(), "User registered successfully!")
     }
 
     @Transactional

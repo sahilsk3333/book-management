@@ -3,6 +3,7 @@ package me.sahil.book_management.user.entity
 import jakarta.persistence.*
 import me.sahil.book_management.book.entity.Book
 import me.sahil.book_management.common.role.Role
+import me.sahil.book_management.file.Entity.File
 import java.time.LocalDateTime
 
 @Entity
@@ -33,6 +34,10 @@ data class User(
     val books: List<Book> = emptyList(),  // A list of books by this user
 
 
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val files: List<File> = emptyList(),  // One-to-many relationship with File
+
+
     val createdAt: LocalDateTime = LocalDateTime.now()
 ) {
 
@@ -40,6 +45,6 @@ data class User(
     constructor(id: Long) : this(id = id, name = "", email = "", password = "")
 
     // Default constructor for Hibernate (required)
-    constructor() : this(0, "", "", "", Role.READER, null, 21, emptyList(), LocalDateTime.now())
+    constructor() : this(0, "", "", "", Role.READER, null, 21, emptyList(), emptyList(), LocalDateTime.now())
 
 }

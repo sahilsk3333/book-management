@@ -2,6 +2,7 @@ package me.sahil.book_management.user.service
 
 import me.sahil.book_management.auth.security.JwtTokenProvider
 import me.sahil.book_management.common.role.Role
+import me.sahil.book_management.file.repository.FileRepository
 import me.sahil.book_management.user.dto.PartialUpdateUserRequestDto
 import me.sahil.book_management.user.dto.UpdateUserRequestDto
 import me.sahil.book_management.user.dto.UserResponseDto
@@ -17,7 +18,8 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class UserService(
     private val userRepository: UserRepository,
-    private val jwtTokenProvider: JwtTokenProvider
+    private val jwtTokenProvider: JwtTokenProvider,
+    private val fileRepository: FileRepository
 ) {
 
     private val logger = LoggerFactory.getLogger(UserService::class.java)
@@ -63,6 +65,21 @@ class UserService(
             role = updateUserRequestDto.role
         )
 
+        // If the image URL is provided, check if it exists in the file table and mark as used
+        updatedUser.image?.let { imageUrl ->
+            val file = fileRepository.findByDownloadUrl(imageUrl)
+            if (file != null) {
+                // Mark the file as used
+                fileRepository.save(file.copy(
+                    isUsed = true
+                ))
+                logger.info("Image URL $imageUrl marked as used")
+            } else {
+                logger.warn("No file found with the provided image URL: $imageUrl")
+            }
+        }
+
+
         return userRepository.save(updatedUser).toUserResponseDto()
     }
 
@@ -93,6 +110,21 @@ class UserService(
             image = partialUpdateUserRequestDto.image ?: user.image,
             role = partialUpdateUserRequestDto.role ?: user.role
         )
+
+        partialUpdateUserRequestDto.image?.let { imageUrlForUpdate ->
+            if (imageUrlForUpdate != user.image){
+                val file = fileRepository.findByDownloadUrl(imageUrlForUpdate)
+                if (file != null) {
+                    // Mark the file as used
+                    fileRepository.save(file.copy(
+                        isUsed = true
+                    ))
+                    logger.info("Image URL $imageUrlForUpdate marked as used")
+                } else {
+                    logger.warn("No file found with the provided image URL: $imageUrlForUpdate")
+                }
+            }
+        }
 
         return userRepository.save(updatedUser).toUserResponseDto()
     }
