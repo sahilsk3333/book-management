@@ -1,0 +1,152 @@
+package me.sahil.book_management.user.service
+
+import me.sahil.book_management.auth.security.JwtTokenProvider
+import me.sahil.book_management.common.role.Role
+import me.sahil.book_management.user.dto.PartialUpdateUserRequestDto
+import me.sahil.book_management.user.dto.UpdateUserRequestDto
+import me.sahil.book_management.user.dto.UserResponseDto
+import me.sahil.book_management.user.entity.User
+import me.sahil.book_management.user.mapper.toUserResponseDto
+import me.sahil.book_management.user.repository.UserRepository
+import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+
+@Service
+class UserService(
+    private val userRepository: UserRepository,
+    private val jwtTokenProvider: JwtTokenProvider
+) {
+
+    private val logger = LoggerFactory.getLogger(UserService::class.java)
+
+    // Get all users (paginated), excluding the admin itself
+    @Transactional
+    fun getAllUsers(token: String, pageable: Pageable): Page<UserResponseDto> {
+        val userClaims = jwtTokenProvider.getUserDetailsFromToken(token)
+
+        // Ensure the user is an ADMIN
+        if (userClaims.role != Role.ADMIN) {
+            throw IllegalAccessException("Access Denied. Only ADMIN can view the users list.")
+        }
+
+        // Fetch users excluding the admin itself
+        return userRepository
+            .findAllExcludingAdmin(userClaims.id, pageable)
+            .map { user ->
+                user.toUserResponseDto()
+            }
+    }
+
+    // Update user details (Only user can update themselves)
+    @Transactional
+    fun updateUser(token: String, userId: Long, updateUserRequestDto: UpdateUserRequestDto): UserResponseDto {
+        val userClaims = jwtTokenProvider.getUserDetailsFromToken(token)
+
+        // Ensure the user can only update their own profile
+        if (userClaims.id != userId) {
+            throw IllegalAccessException("You can only update your own profile.")
+        }
+
+        // Fetch the user to update
+        val user = userRepository.findById(userId)
+            .orElseThrow { IllegalArgumentException("User not found") }
+
+        // Apply updates
+        val updatedUser = user.copy(
+            name = updateUserRequestDto.name,
+            email = updateUserRequestDto.email,
+            age = updateUserRequestDto.age,
+            image = updateUserRequestDto.image,
+            role = updateUserRequestDto.role
+        )
+
+        return userRepository.save(updatedUser).toUserResponseDto()
+    }
+
+    // Partial Update user details (Only user can update themselves)
+    @Transactional
+    fun updateUser(
+        token: String,
+        userId: Long,
+        partialUpdateUserRequestDto: PartialUpdateUserRequestDto
+    ): UserResponseDto {
+        val userClaims = jwtTokenProvider.getUserDetailsFromToken(token)
+
+        // Ensure the user can only update their own profile
+        if (userClaims.id != userId) {
+            throw IllegalAccessException("You can only update your own profile.")
+        }
+
+        // Fetch the user to update
+        val user = userRepository.findById(userId)
+            .orElseThrow { IllegalArgumentException("User not found") }
+
+
+        // Apply updates
+        val updatedUser = user.copy(
+            name = partialUpdateUserRequestDto.name ?: user.name,
+            email = partialUpdateUserRequestDto.email ?: user.email,
+            age = partialUpdateUserRequestDto.age ?: user.age,
+            image = partialUpdateUserRequestDto.image ?: user.image,
+            role = partialUpdateUserRequestDto.role ?: user.role
+        )
+
+        return userRepository.save(updatedUser).toUserResponseDto()
+    }
+
+
+    // Delete a user (only allowed for ADMIN and only for AUTHOR or READER roles)
+    @Transactional
+    fun deleteUser(token: String, userId: Long) {
+        val currentUserClaims = jwtTokenProvider.getUserDetailsFromToken(token)
+
+        // Ensure the user is an ADMIN
+        if (currentUserClaims.role != Role.ADMIN) {
+            throw IllegalAccessException("Access Denied. Only ADMIN can delete users.")
+        }
+
+        val userToDelete = userRepository.findById(userId)
+            .orElseThrow { IllegalArgumentException("User not found") }
+
+        // Ensure the user has a role of AUTHOR or READER
+        if (userToDelete.role == Role.ADMIN) {
+            throw IllegalAccessException("Cannot delete ADMIN users.")
+        }
+
+        userRepository.delete(userToDelete)
+        logger.info("User with ID $userId deleted successfully")
+    }
+
+
+    // Fetch a user by ID (self-access or admin access only)
+    @Transactional
+    fun getUserById(token: String, userId: Long): UserResponseDto {
+        val userClaims = jwtTokenProvider.getUserDetailsFromToken(token)
+
+        // Check if the requester is the user themselves or an admin
+        if (userClaims.id != userId && userClaims.role != Role.ADMIN) {
+            throw IllegalAccessException("Access Denied. You can only view your own profile or must be an ADMIN.")
+        }
+
+        // Fetch the user from the database
+        val user = userRepository.findById(userId)
+            .orElseThrow { IllegalArgumentException("User not found.") }
+
+        return user.toUserResponseDto()
+    }
+
+    @Transactional
+    fun getUserByToken(token: String): UserResponseDto {
+        val userClaims = jwtTokenProvider.getUserDetailsFromToken(token)
+
+        // Fetch the user using the ID from the token
+        return userRepository.findById(userClaims.id).orElseThrow {
+            IllegalArgumentException("User not found.")
+        }.toUserResponseDto()
+    }
+
+
+}

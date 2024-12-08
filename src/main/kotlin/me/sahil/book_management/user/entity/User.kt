@@ -1,4 +1,4 @@
-package me.sahil.book_management.auth.entity
+package me.sahil.book_management.user.entity
 
 import jakarta.persistence.*
 import me.sahil.book_management.book.entity.Book

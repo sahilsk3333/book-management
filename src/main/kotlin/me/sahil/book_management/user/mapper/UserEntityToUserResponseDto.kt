@@ -1,7 +1,7 @@
-package me.sahil.book_management.auth.mapper
+package me.sahil.book_management.user.mapper
 
-import me.sahil.book_management.auth.dto.UserResponseDto
-import me.sahil.book_management.auth.entity.User
+import me.sahil.book_management.user.dto.UserResponseDto
+import me.sahil.book_management.user.entity.User
 
 fun User.toUserResponseDto() = UserResponseDto(
     id = this.id,

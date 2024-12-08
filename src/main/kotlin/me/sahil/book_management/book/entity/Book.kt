@@ -2,7 +2,7 @@ package me.sahil.book_management.book.entity
 
 import jakarta.persistence.*
 import jakarta.validation.constraints.Pattern
-import me.sahil.book_management.auth.entity.User
+import me.sahil.book_management.user.entity.User
 import org.hibernate.validator.constraints.ISBN
 
 @Entity

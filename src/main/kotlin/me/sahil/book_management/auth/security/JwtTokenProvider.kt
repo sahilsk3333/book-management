@@ -4,7 +4,7 @@ import com.sun.security.auth.UserPrincipal
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
-import me.sahil.book_management.auth.entity.User
+import me.sahil.book_management.user.entity.User
 import me.sahil.book_management.common.role.Role
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken

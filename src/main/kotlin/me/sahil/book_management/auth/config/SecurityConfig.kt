@@ -28,7 +28,7 @@ class SecurityConfig(private val jwtTokenProvider: JwtTokenProvider) :
         return http
             .csrf { csrf -> csrf.disable() } // Disable CSRF for testing purposes
             .authorizeHttpRequests { authz ->
-                authz.requestMatchers("/auth/register", "/auth/login")
+                authz.requestMatchers("api/auth/register", "api/auth/login")
                     .permitAll()// Allow registration and login without authentication
                     .anyRequest().authenticated() // Secure all other endpoints
             }

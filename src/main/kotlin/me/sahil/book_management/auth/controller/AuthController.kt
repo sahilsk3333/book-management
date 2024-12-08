@@ -11,7 +11,7 @@ import org.springframework.validation.FieldError
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 class AuthController(private val authService: AuthService) {
 
     @PostMapping("/register")

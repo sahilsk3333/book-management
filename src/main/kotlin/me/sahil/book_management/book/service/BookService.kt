@@ -1,7 +1,7 @@
 package me.sahil.book_management.book.service
 
 import jakarta.transaction.Transactional
-import me.sahil.book_management.auth.entity.User
+import me.sahil.book_management.user.entity.User
 import me.sahil.book_management.auth.security.JwtTokenProvider
 import me.sahil.book_management.book.dto.BookPartialUpdateRequestDto
 import me.sahil.book_management.book.dto.BookRequestDto

@@ -2,14 +2,14 @@ package me.sahil.book_management.auth.service
 
 import me.sahil.book_management.auth.dto.LoginRequest
 import me.sahil.book_management.auth.dto.RegisterRequest
-import me.sahil.book_management.auth.entity.User
-import me.sahil.book_management.auth.repository.UserRepository
+import me.sahil.book_management.user.entity.User
+import me.sahil.book_management.user.repository.UserRepository
 import me.sahil.book_management.auth.security.JwtTokenProvider
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import jakarta.transaction.Transactional
-import me.sahil.book_management.auth.dto.UserResponseDto
-import me.sahil.book_management.auth.mapper.toUserResponseDto
+import me.sahil.book_management.user.dto.UserResponseDto
+import me.sahil.book_management.user.mapper.toUserResponseDto
 import org.slf4j.LoggerFactory
 
 @Service

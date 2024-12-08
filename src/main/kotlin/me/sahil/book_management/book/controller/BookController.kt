@@ -56,11 +56,12 @@ class BookController(private val bookService: BookService) {
         @PathVariable bookId: Long,
         @RequestBody bookPartialUpdateRequestDto: BookPartialUpdateRequestDto
     ): ResponseEntity<BookResponseDto> {
-        val updatedBook = bookService.partialUpdateBook(token.removePrefix("Bearer "), bookId, bookPartialUpdateRequestDto)
+        val updatedBook =
+            bookService.partialUpdateBook(token.removePrefix("Bearer "), bookId, bookPartialUpdateRequestDto)
         return ResponseEntity.ok(updatedBook)
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{bookId}")
     fun getBook(@PathVariable id: Long): ResponseEntity<BookResponseDto> {
         val bookResponseDto = bookService.getBookById(id)
         return ResponseEntity.ok(bookResponseDto)

@@ -1,6 +1,6 @@
 package me.sahil.book_management.book.mapper
 
-import me.sahil.book_management.auth.mapper.toUserResponseDto
+import me.sahil.book_management.user.mapper.toUserResponseDto
 import me.sahil.book_management.book.dto.BookResponseDto
 import me.sahil.book_management.book.entity.Book
 

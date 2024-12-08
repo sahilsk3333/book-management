@@ -1,7 +1,7 @@
 package me.sahil.book_management.book.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import me.sahil.book_management.auth.dto.UserResponseDto
+import me.sahil.book_management.user.dto.UserResponseDto
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class BookResponseDto(
