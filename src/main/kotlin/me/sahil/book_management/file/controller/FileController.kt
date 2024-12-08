@@ -4,6 +4,7 @@ package me.sahil.book_management.file.controller
 import jakarta.servlet.http.HttpServletResponse
 import me.sahil.book_management.file.dto.FileResponseDto
 import me.sahil.book_management.file.service.FileService
+import me.sahil.book_management.file.service.FileServiceImpl
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile

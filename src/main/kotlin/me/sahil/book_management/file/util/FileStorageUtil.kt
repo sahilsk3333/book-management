@@ -1,4 +1,4 @@
-package me.sahil.book_management.file
+package me.sahil.book_management.file.util
 
 import org.springframework.stereotype.Component
 import org.springframework.web.multipart.MultipartFile

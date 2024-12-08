@@ -1,4 +1,4 @@
-package me.sahil.book_management.file.repository
+package me.sahil.book_management.file.mapper
 
 import me.sahil.book_management.file.Entity.File
 import me.sahil.book_management.file.dto.FileResponseDto
