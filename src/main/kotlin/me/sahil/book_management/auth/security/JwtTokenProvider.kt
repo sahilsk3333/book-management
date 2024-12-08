@@ -1,8 +1,10 @@
 package me.sahil.book_management.auth.security
 
+import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
+import me.sahil.book_management.core.exception.TokenInvalidException
 import me.sahil.book_management.user.entity.User
 import me.sahil.book_management.core.role.Role
 import org.springframework.beans.factory.annotation.Value
@@ -73,25 +75,29 @@ class JwtTokenProvider {
     /**
      * Extracts user details from a JWT token, including the user's `id`, `email`, `name`, and `role`.
      *
-     * This method parses the token and returns a `UserClaims` object containing the claims.
+     * This method parses the token and returns a `UserClaims` object containing the extracted user details.
      *
      * @param token The JWT token from which user details are extracted.
      * @return A `UserClaims` object containing the extracted user details.
      * @throws Exception If the token is invalid or expired.
      */
     fun getUserDetailsFromToken(token: String): UserClaims {
-        val claims = Jwts.parserBuilder()
-            .setSigningKey(Keys.hmacShaKeyFor(secretKey.toByteArray()))
-            .build()
-            .parseClaimsJws(token)
-            .body
+        try {
+            val claims = Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(secretKey.toByteArray()))
+                .build()
+                .parseClaimsJws(token)
+                .body
 
-        return UserClaims(
-            id = (claims["id"] as Int).toLong(),
-            email = claims["email"] as String,
-            name = claims["name"] as String,
-            role = Role.valueOf(claims["role"] as String)
-        )
+            return UserClaims(
+                id = (claims["id"] as Int).toLong(),
+                email = claims["email"] as String,
+                name = claims["name"] as String,
+                role = Role.valueOf(claims["role"] as String)
+            )
+        } catch (e: JwtException) {
+            throw TokenInvalidException("Invalid or expired token")
+        }
     }
 
     /**

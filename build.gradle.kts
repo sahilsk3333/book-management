@@ -29,6 +29,7 @@ dependencies {
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	testImplementation("org.springframework.security:spring-security-test")
+	testImplementation ("org.mockito.kotlin:mockito-kotlin:5.0.0")
 
 
 	// validation
