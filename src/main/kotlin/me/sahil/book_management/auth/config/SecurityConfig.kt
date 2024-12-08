@@ -20,6 +20,18 @@ import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
+/**
+ * Security configuration class for setting up JWT-based authentication and authorization.
+ *
+ * This class configures the security filter chain for the application, disables CSRF protection
+ * for testing purposes, sets up session management to be stateless (for JWT usage), and handles
+ * authentication exceptions by returning a JSON error message with a 401 Unauthorized status.
+ *
+ * It also specifies which routes should be publicly accessible (unauthenticated) and which require
+ * authentication.
+ *
+ * @param jwtTokenProvider The provider responsible for creating and validating JWT tokens.
+ */
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(private val jwtTokenProvider: JwtTokenProvider) :

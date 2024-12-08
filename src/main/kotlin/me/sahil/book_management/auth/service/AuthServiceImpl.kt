@@ -14,6 +14,19 @@ import me.sahil.book_management.user.dto.UserResponse
 import me.sahil.book_management.user.mapper.toUserResponseDto
 import org.slf4j.LoggerFactory
 
+/**
+ * Implementation of the [AuthService] interface that handles user authentication operations.
+ *
+ * This service includes logic for registering a new user, logging in an existing user,
+ * and updating the user's password. The service interacts with the database to store and
+ * retrieve user data, applies password encoding for security, and generates JWT tokens
+ * for authenticated users.
+ *
+ * @param userRepository The repository for interacting with user data in the database.
+ * @param passwordEncoder The password encoder used to encode passwords before saving.
+ * @param jwtTokenProvider The utility class for generating and validating JWT tokens.
+ * @param fileRepository The repository for interacting with file data in the database.
+ */
 @Service
 class AuthServiceImpl(
     private val userRepository: UserRepository,
@@ -24,6 +37,17 @@ class AuthServiceImpl(
 
     private val logger = LoggerFactory.getLogger(AuthServiceImpl::class.java)
 
+    /**
+     * Registers a new user with the provided registration details.
+     *
+     * This method checks if the email already exists in the database, encodes the user's
+     * password, creates a new user entity, and saves it in the repository. If an image URL
+     * is provided, it checks if the file exists in the file repository and marks it as used.
+     *
+     * @param registerRequest The registration request containing the user's details.
+     * @return A pair containing the created `UserResponse` and a success message.
+     * @throws IllegalArgumentException If the email is already in use.
+     */
     @Transactional
     override fun register(registerRequest: RegisterRequest): Pair<UserResponse, String> {
         // Check if the email already exists
@@ -69,6 +93,16 @@ class AuthServiceImpl(
         return Pair(user.toUserResponseDto(), "User registered successfully!")
     }
 
+    /**
+     * Logs in a user with the provided credentials.
+     *
+     * This method validates the user's email and password, generates a JWT token if valid,
+     * and returns the user's details along with the token.
+     *
+     * @param loginRequest The login request containing the user's email and password.
+     * @return A pair containing the `UserResponse` and the generated JWT token.
+     * @throws IllegalArgumentException If the email or password is incorrect.
+     */
     @Transactional
     override fun login(loginRequest: LoginRequest): Pair<UserResponse, String> {
         // Find the user by email
@@ -87,6 +121,15 @@ class AuthServiceImpl(
         return Pair(user.toUserResponseDto(), token)
     }
 
+    /**
+     * Updates the user's password.
+     *
+     * This method verifies the current password and encodes and saves the new password.
+     *
+     * @param token The JWT token used to authenticate the user.
+     * @param updatePasswordRequest The request containing the current and new password.
+     * @throws IllegalArgumentException If the current password is incorrect or the user is not found.
+     */
     @Transactional
     override fun updatePassword(token: String, updatePasswordRequest: UpdatePasswordRequest) {
         val userClaims = jwtTokenProvider.getUserDetailsFromToken(token)
@@ -106,5 +149,4 @@ class AuthServiceImpl(
 
         logger.info("Password updated successfully for user with ID: ${user.id}")
     }
-
 }

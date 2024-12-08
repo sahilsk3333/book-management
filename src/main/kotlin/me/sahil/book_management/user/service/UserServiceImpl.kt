@@ -16,6 +16,9 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
+/**
+ * Implementation of the [UserService] interface, providing business logic for managing users.
+ */
 class UserServiceImpl(
     private val userRepository: UserRepository,
     private val jwtTokenProvider: JwtTokenProvider,
@@ -24,7 +27,14 @@ class UserServiceImpl(
 
     private val logger = LoggerFactory.getLogger(UserServiceImpl::class.java)
 
-    // Get all users (paginated), excluding the admin itself
+    /**
+     * Retrieves all users (excluding the admin), with pagination.
+     *
+     * @param token The authorization token of the currently authenticated user.
+     * @param pageable The pagination information for listing users.
+     * @return A paginated list of user responses.
+     * @throws IllegalAccessException If the user is not an ADMIN.
+     */
     @Transactional
     override fun getAllUsers(token: String, pageable: Pageable): Page<UserResponse> {
         val userClaims = jwtTokenProvider.getUserDetailsFromToken(token)
@@ -37,14 +47,26 @@ class UserServiceImpl(
         // Fetch users excluding the admin itself
         return userRepository
             .findAllExcludingAdmin(userClaims.id, pageable)
-            .map { user ->
-                user.toUserResponseDto()
-            }
+            .map { user -> user.toUserResponseDto() }
     }
 
-    // Update user details (Only user can update themselves)
+    /**
+     * Updates the details of an existing user. Only the user can update their own profile.
+     *
+     * @param token The authorization token of the currently authenticated user.
+     * @param userId The ID of the user to update.
+     * @param updateUserRequestDto The DTO containing the updated user details.
+     * @return The updated user response.
+     * @throws IllegalAccessException If the user is trying to update someone else's profile.
+     * @throws NotFoundException If the user to update is not found.
+     * @throws IllegalArgumentException If the email is already in use by another user.
+     */
     @Transactional
-    override fun updateUser(token: String, userId: Long, updateUserRequestDto: UpdateUserRequest): UserResponse {
+    override fun updateUser(
+        token: String,
+        userId: Long,
+        updateUserRequestDto: UpdateUserRequest
+    ): UserResponse {
         val userClaims = jwtTokenProvider.getUserDetailsFromToken(token)
 
         // Ensure the user can only update their own profile
@@ -52,16 +74,15 @@ class UserServiceImpl(
             throw IllegalAccessException("You can only update your own profile.")
         }
 
-        // Fetch the user to update
         val user = userRepository.findById(userId)
             .orElseThrow { NotFoundException("User not found") }
 
-        // Check if the new email is already taken by another user
+        // Check if the new email is already taken
         if (updateUserRequestDto.email != user.email && userRepository.existsByEmail(updateUserRequestDto.email)) {
             throw IllegalArgumentException("Email already exists.")
         }
 
-        // Apply updates
+        // Apply updates to the user
         val updatedUser = user.copy(
             name = updateUserRequestDto.name,
             email = updateUserRequestDto.email,
@@ -70,24 +91,29 @@ class UserServiceImpl(
             role = updateUserRequestDto.role
         )
 
-        // If the image URL is provided, check if it exists in the file table and mark as used
+        // If an image URL is provided, check if it exists and mark it as used
         updatedUser.image?.let { imageUrl ->
             val file = fileRepository.findByDownloadUrl(imageUrl)
-            if (file != null) {
-                // Mark the file as used
-                fileRepository.save(
-                    file.copy(isUsed = true)
-                )
+            file?.let {
+                fileRepository.save(file.copy(isUsed = true))
                 logger.info("Image URL $imageUrl marked as used")
-            } else {
-                logger.warn("No file found with the provided image URL: $imageUrl")
-            }
+            } ?: logger.warn("No file found with the provided image URL: $imageUrl")
         }
 
         return userRepository.save(updatedUser).toUserResponseDto()
     }
 
-    // Partial Update user details (Only user can update themselves)
+    /**
+     * Partially updates the details of an existing user. Only the user can update their own profile.
+     *
+     * @param token The authorization token of the currently authenticated user.
+     * @param userId The ID of the user to update.
+     * @param partialUpdateUserRequestDto The DTO containing the partial user details.
+     * @return The updated user response.
+     * @throws IllegalAccessException If the user is trying to update someone else's profile.
+     * @throws NotFoundException If the user to update is not found.
+     * @throws IllegalArgumentException If the email is already in use by another user.
+     */
     @Transactional
     override fun updateUser(
         token: String,
@@ -101,17 +127,17 @@ class UserServiceImpl(
             throw IllegalAccessException("You can only update your own profile.")
         }
 
-        // Fetch the user to update
         val user = userRepository.findById(userId)
             .orElseThrow { NotFoundException("User not found") }
 
-        // Check if the new email is already taken by another user
-        if (partialUpdateUserRequestDto.email != null && partialUpdateUserRequestDto.email != user.email &&
-            userRepository.existsByEmail(partialUpdateUserRequestDto.email)) {
-            throw IllegalArgumentException("Email already exists.")
+        // Check if the new email is already taken
+        partialUpdateUserRequestDto.email?.let { newEmail ->
+            if (newEmail != user.email && userRepository.existsByEmail(newEmail)) {
+                throw IllegalArgumentException("Email already exists.")
+            }
         }
 
-        // Apply updates
+        // Apply partial updates to the user
         val updatedUser = user.copy(
             name = partialUpdateUserRequestDto.name ?: user.name,
             email = partialUpdateUserRequestDto.email ?: user.email,
@@ -124,22 +150,24 @@ class UserServiceImpl(
         partialUpdateUserRequestDto.image?.let { imageUrlForUpdate ->
             if (imageUrlForUpdate != user.image) {
                 val file = fileRepository.findByDownloadUrl(imageUrlForUpdate)
-                if (file != null) {
-                    // Mark the file as used
+                file?.let {
                     fileRepository.save(file.copy(isUsed = true))
                     logger.info("Image URL $imageUrlForUpdate marked as used")
-                } else {
-                    logger.warn("No file found with the provided image URL: $imageUrlForUpdate")
-                }
+                } ?: logger.warn("No file found with the provided image URL: $imageUrlForUpdate")
             }
         }
 
         return userRepository.save(updatedUser).toUserResponseDto()
     }
 
-
-
-    // Delete a user (only allowed for ADMIN and only for AUTHOR or READER roles)
+    /**
+     * Deletes a user. Only an ADMIN can delete users, and users with roles AUTHOR or READER can be deleted.
+     *
+     * @param token The authorization token of the currently authenticated user.
+     * @param userId The ID of the user to delete.
+     * @throws IllegalAccessException If the user is not an ADMIN or if trying to delete an ADMIN user.
+     * @throws NotFoundException If the user to delete is not found.
+     */
     @Transactional
     override fun deleteUser(token: String, userId: Long) {
         val currentUserClaims = jwtTokenProvider.getUserDetailsFromToken(token)
@@ -161,33 +189,43 @@ class UserServiceImpl(
         logger.info("User with ID $userId deleted successfully")
     }
 
-
-    // Fetch a user by ID (self-access or admin access only)
+    /**
+     * Retrieves a user by their ID. Accessible to the user themselves or an ADMIN.
+     *
+     * @param token The authorization token of the currently authenticated user.
+     * @param userId The ID of the user to retrieve.
+     * @return The user response.
+     * @throws IllegalAccessException If the user is not the requested user or an ADMIN.
+     * @throws NotFoundException If the user is not found.
+     */
     @Transactional
     override fun getUserById(token: String, userId: Long): UserResponse {
         val userClaims = jwtTokenProvider.getUserDetailsFromToken(token)
 
-        // Check if the requester is the user themselves or an admin
+        // Ensure the user is either the target user or an ADMIN
         if (userClaims.id != userId && userClaims.role != Role.ADMIN) {
             throw IllegalAccessException("Access Denied. You can only view your own profile or must be an ADMIN.")
         }
 
-        // Fetch the user from the database
         val user = userRepository.findById(userId)
             .orElseThrow { NotFoundException("User not found with id : $userId") }
 
         return user.toUserResponseDto()
     }
 
+    /**
+     * Retrieves the current user's details using the token.
+     *
+     * @param token The authorization token of the currently authenticated user.
+     * @return The user response.
+     * @throws NotFoundException If the user is not found.
+     */
     @Transactional
     override fun getUserByToken(token: String): UserResponse {
         val userClaims = jwtTokenProvider.getUserDetailsFromToken(token)
 
-        // Fetch the user using the ID from the token
         return userRepository.findById(userClaims.id).orElseThrow {
             NotFoundException("User not found")
         }.toUserResponseDto()
     }
-
-
 }
