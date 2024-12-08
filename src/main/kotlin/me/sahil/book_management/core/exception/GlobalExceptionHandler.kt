@@ -34,7 +34,8 @@ class GlobalExceptionHandler {
     @ExceptionHandler(BindException::class)
     fun handleBindException(exception: BindException): ResponseEntity<Map<String, String>> {
         // Collect all field errors and include specific details
-        val errorMessages = exception.bindingResult.fieldErrors.joinToString(", ") { "${it.field}: ${it.defaultMessage}" }
+        val errorMessages =
+            exception.bindingResult.fieldErrors.joinToString(", ") { "${it.field}: ${it.defaultMessage}" }
 
         // Return the response with the validation error messages
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -44,7 +45,8 @@ class GlobalExceptionHandler {
     @ExceptionHandler(JsonProcessingException::class)
     fun handleJsonParsingException(ex: JsonProcessingException): ResponseEntity<Map<String, String>> {
         logger.error("JSON parsing error: ${ex.message}")
-        val errorResponse = mapOf("error" to "Bad Request", "message" to "Invalid request body. Please check your input fields.")
+        val errorResponse =
+            mapOf("error" to "Bad Request", "message" to "Invalid request body. Please check your input fields.")
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
     }
 
@@ -56,8 +58,8 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NotFoundException::class)
-    fun handleNotFoundException(exception: NotFoundException): ResponseEntity<String> {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.message)
+    fun handleNotFoundException(exception: NotFoundException): ResponseEntity<Map<Any, Any?>> {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to exception.message))
     }
 
     @ExceptionHandler(Exception::class)

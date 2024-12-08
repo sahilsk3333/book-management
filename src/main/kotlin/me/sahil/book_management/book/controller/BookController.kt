@@ -79,8 +79,8 @@ class BookController(private val bookService: BookService) {
     }
 
     @GetMapping(ApiRoutes.BookRoutes.GET_BOOK)
-    fun getBook(@PathVariable id: Long): ResponseEntity<BookResponse> {
-        val bookResponseDto = bookService.getBookById(id)
+    fun getBook(@PathVariable bookId: Long): ResponseEntity<BookResponse> {
+        val bookResponseDto = bookService.getBookById(bookId)
         return ResponseEntity.ok(bookResponseDto)
     }
 

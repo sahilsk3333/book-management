@@ -1,5 +1,6 @@
 package me.sahil.book_management.auth.config
 
+import jakarta.servlet.http.HttpServletResponse
 import me.sahil.book_management.auth.security.JwtAuthenticationFilter
 import me.sahil.book_management.auth.security.JwtTokenProvider
 import me.sahil.book_management.core.route.ApiRoutes
@@ -30,13 +31,17 @@ class SecurityConfig(private val jwtTokenProvider: JwtTokenProvider) :
             .csrf { csrf -> csrf.disable() } // Disable CSRF for testing purposes
             .authorizeHttpRequests { authz ->
                 authz.requestMatchers(
-                    ApiRoutes.AuthRoutes.PATH + ApiRoutes.AuthRoutes.REGISTER,
-                    ApiRoutes.AuthRoutes.PATH + ApiRoutes.AuthRoutes.LOGIN,
-                    ApiRoutes.FileRoutes.PATH + "/download/**",
+                   *ApiRoutes.UNAUTHENTICATED_ROUTES
                 ).permitAll().anyRequest().authenticated()
             }
             .sessionManagement { session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Stateless session for JWT
+            }.exceptionHandling { exceptions ->
+                exceptions.authenticationEntryPoint { _, response, _ ->
+                    response.status = HttpServletResponse.SC_UNAUTHORIZED
+                    response.contentType = "application/json"
+                    response.writer.write("""{"error": "Unauthorized"}""")
+                }
             }
             .addFilterBefore(
                 JwtAuthenticationFilter(jwtTokenProvider = jwtTokenProvider),

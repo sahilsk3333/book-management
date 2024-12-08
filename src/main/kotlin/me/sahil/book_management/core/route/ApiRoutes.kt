@@ -1,5 +1,15 @@
 package me.sahil.book_management.core.route
+
 sealed class ApiRoutes {
+
+    companion object {
+        val UNAUTHENTICATED_ROUTES = arrayOf(
+            ApiRoutes.AuthRoutes.PATH + ApiRoutes.AuthRoutes.REGISTER,
+            ApiRoutes.AuthRoutes.PATH + ApiRoutes.AuthRoutes.LOGIN,
+            ApiRoutes.FileRoutes.PATH + "/download/**"
+        )
+    }
+
     object AuthRoutes {
         const val PATH = "/api/auth"
         const val REGISTER = "/register"
