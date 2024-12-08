@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.validation.BindException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -18,6 +20,25 @@ class GlobalExceptionHandler {
         val errors = ex.bindingResult.fieldErrors.associate { it.field to it.defaultMessage }
         logger.error("Validation failed: $errors")
         return ResponseEntity.badRequest().body(mapOf("error" to "Validation failed", "details" to errors))
+    }
+
+    // Handle Invalid JSON (Malformed JSON)
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    fun handleJsonParseException(exception: HttpMessageNotReadableException): ResponseEntity<Map<String, String>> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(mapOf("error" to "Invalid JSON", "message" to "Request body is malformed"))
+    }
+
+
+    // Handle Validation Errors (missing or invalid fields)
+    @ExceptionHandler(BindException::class)
+    fun handleBindException(exception: BindException): ResponseEntity<Map<String, String>> {
+        // Collect all field errors and include specific details
+        val errorMessages = exception.bindingResult.fieldErrors.joinToString(", ") { "${it.field}: ${it.defaultMessage}" }
+
+        // Return the response with the validation error messages
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(mapOf("error" to "Validation failed", "message" to errorMessages))
     }
 
     @ExceptionHandler(JsonProcessingException::class)

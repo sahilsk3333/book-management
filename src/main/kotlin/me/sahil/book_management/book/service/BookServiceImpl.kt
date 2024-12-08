@@ -34,6 +34,11 @@ class BookServiceImpl(
             throw IllegalAccessException("Only AUTHORS can add books.")
         }
 
+        // Check if the ISBN is already taken by another book
+        if (bookRepository.existsByIsbn(bookRequestDto.isbn)) {
+            throw IllegalArgumentException("The ISBN is already taken by another book.")
+        }
+
         val book = Book(
             author = User(userClaims.id),
             name = bookRequestDto.name,
@@ -44,6 +49,7 @@ class BookServiceImpl(
 
         return bookRepository.save(book).toBookResponseDto().copy(author = null)
     }
+
 
     // Delete a book (Admins and authors only)
     @Transactional
@@ -84,6 +90,11 @@ class BookServiceImpl(
             throw IllegalAccessException("You can only edit your own books.")
         }
 
+        // Check if the ISBN is already taken by another book (excluding the current book)
+        if (bookRepository.existsByIsbnAndIdNot(bookRequestDto.isbn, bookId)) {
+            throw IllegalArgumentException("The ISBN is already taken by another book.")
+        }
+
         // Update the book with the new details
         val updatedBook = book.copy(
             name = bookRequestDto.name,
@@ -97,7 +108,6 @@ class BookServiceImpl(
     }
 
 
-    // Partial update of a book (Authors can only partially update their own books)
     @Transactional
     override fun partialUpdateBook(token: String, bookId: Long, requestDto: BookPartialUpdateRequest): BookResponse {
         val userClaims = jwtTokenProvider.getUserDetailsFromToken(token)
@@ -110,6 +120,13 @@ class BookServiceImpl(
         // Check if the user is the author of the book
         if (book.author.id != userClaims.id) {
             throw IllegalAccessException("You can only edit your own books.")
+        }
+
+        // Check if the ISBN is part of the update and if it's unique
+        requestDto.isbn?.let {
+            if (bookRepository.existsByIsbnAndIdNot(it, bookId)) {
+                throw IllegalArgumentException("The ISBN is already taken by another book.")
+            }
         }
 
         val updatedBook = book.copy(

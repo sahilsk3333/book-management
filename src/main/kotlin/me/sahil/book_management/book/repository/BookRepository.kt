@@ -7,4 +7,6 @@ import org.springframework.data.domain.Page
 
 interface BookRepository : JpaRepository<Book, Long> {
     fun findByAuthorId(authorId: Long, pageable: Pageable): Page<Book>
+    fun existsByIsbnAndIdNot(isbn: String, id: Long): Boolean // Check if ISBN exists excluding the current book
+    fun existsByIsbn(isbn: String): Boolean
 }

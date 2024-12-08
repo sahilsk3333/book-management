@@ -1,6 +1,7 @@
 package me.sahil.book_management.book.entity
 
 import jakarta.persistence.*
+import jakarta.validation.constraints.Pattern
 import me.sahil.book_management.user.entity.User
 import org.hibernate.validator.constraints.ISBN
 import java.time.LocalDateTime
@@ -24,7 +25,10 @@ data class Book(
     val pdfUrl: String? = null,
 
     @Column(nullable = false, unique = true)
-    @ISBN(message = "Invalid ISBN format", type = ISBN.Type.ISBN_13)
+    @field:Pattern(
+        regexp = "^(?:ISBN(?:-13)?:? )?(?=[0-9]{13}\$|(?=(?:[0-9]+[- ]){4})[- 0-9]{17}\$)97[89][- ]?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9]\$", // Regex for both ISBN-13 and ISBN-10
+        message = "Invalid ISBN format, must be either ISBN-10 or ISBN-13"
+    )
     val isbn: String, // ISBN field with validation pattern
 
     @Column(nullable = false)

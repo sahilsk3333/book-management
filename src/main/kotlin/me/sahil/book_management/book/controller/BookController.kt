@@ -1,5 +1,6 @@
 package me.sahil.book_management.book.controller
 
+import jakarta.validation.Valid
 import me.sahil.book_management.book.dto.BookPartialUpdateRequest
 import me.sahil.book_management.book.dto.BookRequest
 import me.sahil.book_management.book.dto.BookResponse
@@ -9,6 +10,8 @@ import me.sahil.book_management.core.utils.extractBearerToken
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.BindException
+import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -25,8 +28,12 @@ class BookController(private val bookService: BookService) {
     @PostMapping(ApiRoutes.BookRoutes.ADD_BOOK)
     fun addBook(
         @RequestHeader("Authorization") token: String,
-        @RequestBody bookRequestDto: BookRequest
+        @Valid @RequestBody bookRequestDto: BookRequest,
+        result: BindingResult
     ): ResponseEntity<BookResponse> {
+        if (result.hasErrors()) {
+            throw BindException(result)
+        }
         return ResponseEntity.ok(bookService.addBook(token.extractBearerToken(), bookRequestDto))
     }
 
@@ -45,8 +52,12 @@ class BookController(private val bookService: BookService) {
     fun updateBook(
         @RequestHeader("Authorization") token: String,
         @PathVariable bookId: Long,
-        @RequestBody bookRequestDto: BookRequest
+        @Valid @RequestBody bookRequestDto: BookRequest,
+        result: BindingResult
     ): ResponseEntity<BookResponse> {
+        if (result.hasErrors()) {
+            throw BindException(result)
+        }
         return ResponseEntity.ok(
             bookService.updateBook(token.extractBearerToken(), bookId, bookRequestDto)
         )

@@ -55,6 +55,11 @@ class UserServiceImpl(
         val user = userRepository.findById(userId)
             .orElseThrow { IllegalArgumentException("User not found") }
 
+        // Check if the new email is already taken by another user
+        if (updateUserRequestDto.email != user.email && userRepository.existsByEmail(updateUserRequestDto.email)) {
+            throw IllegalArgumentException("Email already exists.")
+        }
+
         // Apply updates
         val updatedUser = user.copy(
             name = updateUserRequestDto.name,
@@ -70,16 +75,13 @@ class UserServiceImpl(
             if (file != null) {
                 // Mark the file as used
                 fileRepository.save(
-                    file.copy(
-                        isUsed = true
-                    )
+                    file.copy(isUsed = true)
                 )
                 logger.info("Image URL $imageUrl marked as used")
             } else {
                 logger.warn("No file found with the provided image URL: $imageUrl")
             }
         }
-
 
         return userRepository.save(updatedUser).toUserResponseDto()
     }
@@ -102,6 +104,11 @@ class UserServiceImpl(
         val user = userRepository.findById(userId)
             .orElseThrow { IllegalArgumentException("User not found") }
 
+        // Check if the new email is already taken by another user
+        if (partialUpdateUserRequestDto.email != null && partialUpdateUserRequestDto.email != user.email &&
+            userRepository.existsByEmail(partialUpdateUserRequestDto.email)) {
+            throw IllegalArgumentException("Email already exists.")
+        }
 
         // Apply updates
         val updatedUser = user.copy(
@@ -112,16 +119,13 @@ class UserServiceImpl(
             role = partialUpdateUserRequestDto.role ?: user.role
         )
 
+        // Handle image URL if provided
         partialUpdateUserRequestDto.image?.let { imageUrlForUpdate ->
             if (imageUrlForUpdate != user.image) {
                 val file = fileRepository.findByDownloadUrl(imageUrlForUpdate)
                 if (file != null) {
                     // Mark the file as used
-                    fileRepository.save(
-                        file.copy(
-                            isUsed = true
-                        )
-                    )
+                    fileRepository.save(file.copy(isUsed = true))
                     logger.info("Image URL $imageUrlForUpdate marked as used")
                 } else {
                     logger.warn("No file found with the provided image URL: $imageUrlForUpdate")
@@ -131,6 +135,7 @@ class UserServiceImpl(
 
         return userRepository.save(updatedUser).toUserResponseDto()
     }
+
 
 
     // Delete a user (only allowed for ADMIN and only for AUTHOR or READER roles)

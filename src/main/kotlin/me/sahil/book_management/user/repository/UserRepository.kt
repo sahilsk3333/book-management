@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query
 interface UserRepository : JpaRepository<User, Long> {
      fun findByEmail(email: String): User?
 
+     fun existsByEmail(email: String): Boolean // Check if the email already exists
+
      @Query(
           value = "SELECT u FROM User u WHERE u.id != :excludeUserId",
           countQuery = "SELECT COUNT(u) FROM User u WHERE u.id != :excludeUserId"
