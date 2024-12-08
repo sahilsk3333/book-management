@@ -1,14 +1,8 @@
 package me.sahil.book_management.auth.security
 
-import io.jsonwebtoken.ExpiredJwtException
-import io.jsonwebtoken.MalformedJwtException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import me.sahil.book_management.common.exception.TokenExpiredException
-import me.sahil.book_management.common.exception.TokenInvalidException
-import me.sahil.book_management.common.exception.TokenMissingException
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter

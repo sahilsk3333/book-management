@@ -1,4 +1,4 @@
-package me.sahil.book_management.common.role
+package me.sahil.book_management.core.role
 
 
 enum class Role {

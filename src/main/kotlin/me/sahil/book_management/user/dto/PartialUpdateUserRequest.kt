@@ -1,6 +1,6 @@
 package me.sahil.book_management.user.dto
 
-import me.sahil.book_management.common.role.Role
+import me.sahil.book_management.core.role.Role
 
 
 data class PartialUpdateUserRequest(

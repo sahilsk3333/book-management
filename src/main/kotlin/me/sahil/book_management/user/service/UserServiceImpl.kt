@@ -1,7 +1,7 @@
 package me.sahil.book_management.user.service
 
 import me.sahil.book_management.auth.security.JwtTokenProvider
-import me.sahil.book_management.common.role.Role
+import me.sahil.book_management.core.role.Role
 import me.sahil.book_management.file.repository.FileRepository
 import me.sahil.book_management.user.dto.PartialUpdateUserRequest
 import me.sahil.book_management.user.dto.UpdateUserRequest

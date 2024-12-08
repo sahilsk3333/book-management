@@ -2,9 +2,10 @@ package me.sahil.book_management.file.controller
 
 
 import jakarta.servlet.http.HttpServletResponse
+import me.sahil.book_management.core.route.ApiRoutes
+import me.sahil.book_management.core.utils.extractBearerToken
 import me.sahil.book_management.file.dto.FileResponseDto
 import me.sahil.book_management.file.service.FileService
-import me.sahil.book_management.file.service.FileServiceImpl
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
@@ -12,32 +13,32 @@ import java.io.FileInputStream
 
 
 @RestController
-@RequestMapping("/api/files")
+@RequestMapping(ApiRoutes.FileRoutes.PATH)
 class FileController(private val fileService: FileService) {
 
     // Endpoint to upload a file
-    @PostMapping("/upload")
+    @PostMapping(ApiRoutes.FileRoutes.UPLOAD)
     fun uploadFile(@RequestHeader("Authorization") token: String, @RequestParam("file") file: MultipartFile): ResponseEntity<String> {
-        val uploadedFile = fileService.uploadFile(token.removePrefix("Bearer "), file)
+        val uploadedFile = fileService.uploadFile(token.extractBearerToken(), file)
         return ResponseEntity.ok("File uploaded successfully. Download URL: ${uploadedFile.downloadUrl}")
     }
 
     // Endpoint to get files uploaded by the current user
-    @GetMapping("/user-files")
+    @GetMapping(ApiRoutes.FileRoutes.USER_FILES)
     fun getUserFiles(@RequestHeader("Authorization") token: String): ResponseEntity<List<FileResponseDto>> {
-        val files = fileService.getUserFiles(token.removePrefix("Bearer "))
+        val files = fileService.getUserFiles(token.extractBearerToken())
         return ResponseEntity.ok(files)
     }
 
     // Endpoint to delete a file
-    @DeleteMapping("/{fileId}")
+    @DeleteMapping(ApiRoutes.FileRoutes.DELETE_FILE)
     fun deleteFile(@RequestHeader("Authorization") token: String, @PathVariable fileId: Long): ResponseEntity<String> {
-        fileService.deleteFile(token.removePrefix("Bearer "), fileId)
+        fileService.deleteFile(token.extractBearerToken(), fileId)
         return ResponseEntity.ok("File deleted successfully.")
     }
 
     // Endpoint to download a file
-    @GetMapping("/download/{fileName}")
+    @GetMapping(ApiRoutes.FileRoutes.DOWNLOAD_FILE)
     fun downloadFile(@PathVariable fileName: String, response: HttpServletResponse) {
         val file = fileService.getFileByUrl("http://localhost:8080/api/files/download/$fileName")  // Fetch file by URL
 

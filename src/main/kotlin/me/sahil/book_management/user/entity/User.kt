@@ -2,7 +2,7 @@ package me.sahil.book_management.user.entity
 
 import jakarta.persistence.*
 import me.sahil.book_management.book.entity.Book
-import me.sahil.book_management.common.role.Role
+import me.sahil.book_management.core.role.Role
 import me.sahil.book_management.file.Entity.File
 import java.time.LocalDateTime
 

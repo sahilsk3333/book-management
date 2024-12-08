@@ -2,6 +2,7 @@ package me.sahil.book_management.auth.config
 
 import me.sahil.book_management.auth.security.JwtAuthenticationFilter
 import me.sahil.book_management.auth.security.JwtTokenProvider
+import me.sahil.book_management.core.route.ApiRoutes
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -28,9 +29,11 @@ class SecurityConfig(private val jwtTokenProvider: JwtTokenProvider) :
         return http
             .csrf { csrf -> csrf.disable() } // Disable CSRF for testing purposes
             .authorizeHttpRequests { authz ->
-                authz.requestMatchers("api/auth/register", "api/auth/login","/api/files/download/**")
-                    .permitAll()// Allow registration and login without authentication
-                    .anyRequest().authenticated() // Secure all other endpoints
+                authz.requestMatchers(
+                    ApiRoutes.AuthRoutes.PATH + ApiRoutes.AuthRoutes.REGISTER,
+                    ApiRoutes.AuthRoutes.PATH + ApiRoutes.AuthRoutes.LOGIN,
+                    ApiRoutes.FileRoutes.PATH + "/download/**",
+                ).permitAll().anyRequest().authenticated()
             }
             .sessionManagement { session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Stateless session for JWT

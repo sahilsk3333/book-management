@@ -1,10 +1,9 @@
-package me.sahil.book_management.common.exception
+package me.sahil.book_management.core.exception
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -16,10 +15,9 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidationException(ex: MethodArgumentNotValidException): ResponseEntity<Map<String, Any>> {
-        val errors = ex.bindingResult.allErrors.map { (it as FieldError).defaultMessage }.joinToString(", ")
-        val errorResponse = mapOf("error" to "Validation failed", "message" to errors)
+        val errors = ex.bindingResult.fieldErrors.associate { it.field to it.defaultMessage }
         logger.error("Validation failed: $errors")
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
+        return ResponseEntity.badRequest().body(mapOf("error" to "Validation failed", "details" to errors))
     }
 
     @ExceptionHandler(JsonProcessingException::class)

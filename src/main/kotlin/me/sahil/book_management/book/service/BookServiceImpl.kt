@@ -9,7 +9,7 @@ import me.sahil.book_management.book.dto.BookResponse
 import me.sahil.book_management.book.entity.Book
 import me.sahil.book_management.book.mapper.toBookResponseDto
 import me.sahil.book_management.book.repository.BookRepository
-import me.sahil.book_management.common.role.Role
+import me.sahil.book_management.core.role.Role
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
