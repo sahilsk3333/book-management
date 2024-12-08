@@ -8,8 +8,9 @@ import me.sahil.book_management.auth.security.JwtTokenProvider
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import jakarta.transaction.Transactional
+import me.sahil.book_management.auth.dto.UpdatePasswordRequest
 import me.sahil.book_management.file.repository.FileRepository
-import me.sahil.book_management.user.dto.UserResponseDto
+import me.sahil.book_management.user.dto.UserResponse
 import me.sahil.book_management.user.mapper.toUserResponseDto
 import org.slf4j.LoggerFactory
 
@@ -24,7 +25,7 @@ class AuthService(
     private val logger = LoggerFactory.getLogger(AuthService::class.java)
 
     @Transactional
-    fun register(registerRequest: RegisterRequest): Pair<UserResponseDto, String> {
+    fun register(registerRequest: RegisterRequest): Pair<UserResponse, String> {
         // Check if the email already exists
         val existingUser = userRepository.findByEmail(registerRequest.email)
         if (existingUser != null) {
@@ -67,7 +68,7 @@ class AuthService(
     }
 
     @Transactional
-    fun login(loginRequest: LoginRequest): Pair<UserResponseDto, String> {
+    fun login(loginRequest: LoginRequest): Pair<UserResponse, String> {
         // Find the user by email
         val user = userRepository.findByEmail(loginRequest.email)
             ?: throw IllegalArgumentException("Invalid email or password")
@@ -83,4 +84,25 @@ class AuthService(
         logger.info("User logged in successfully with email: ${loginRequest.email}")
         return Pair(user.toUserResponseDto(), token)
     }
+
+    @Transactional
+    fun updatePassword(token: String, updatePasswordRequest: UpdatePasswordRequest) {
+        val userClaims = jwtTokenProvider.getUserDetailsFromToken(token)
+
+        // Fetch the user from the database
+        val user = userRepository.findById(userClaims.id)
+            .orElseThrow { IllegalArgumentException("User not found") }
+
+        // Validate the current password
+        if (!passwordEncoder.matches(updatePasswordRequest.currentPassword, user.password)) {
+            throw IllegalArgumentException("Current password is incorrect")
+        }
+
+        // Encode the new password and update the user
+        val encodedNewPassword = passwordEncoder.encode(updatePasswordRequest.newPassword)
+        userRepository.save(user.copy(password = encodedNewPassword))
+
+        logger.info("Password updated successfully for user with ID: ${user.id}")
+    }
+
 }

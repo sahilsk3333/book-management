@@ -1,12 +1,12 @@
 package me.sahil.book_management.book.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import me.sahil.book_management.user.dto.UserResponseDto
+import me.sahil.book_management.user.dto.UserResponse
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class BookResponseDto(
+data class BookResponse(
     val id: Long,
-    val author: UserResponseDto?,
+    val author: UserResponse?,
     val name: String,
     val description: String?,
     val pdfUrl: String?,

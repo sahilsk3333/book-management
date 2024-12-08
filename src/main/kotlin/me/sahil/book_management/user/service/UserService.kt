@@ -3,10 +3,9 @@ package me.sahil.book_management.user.service
 import me.sahil.book_management.auth.security.JwtTokenProvider
 import me.sahil.book_management.common.role.Role
 import me.sahil.book_management.file.repository.FileRepository
-import me.sahil.book_management.user.dto.PartialUpdateUserRequestDto
-import me.sahil.book_management.user.dto.UpdateUserRequestDto
-import me.sahil.book_management.user.dto.UserResponseDto
-import me.sahil.book_management.user.entity.User
+import me.sahil.book_management.user.dto.PartialUpdateUserRequest
+import me.sahil.book_management.user.dto.UpdateUserRequest
+import me.sahil.book_management.user.dto.UserResponse
 import me.sahil.book_management.user.mapper.toUserResponseDto
 import me.sahil.book_management.user.repository.UserRepository
 import org.slf4j.LoggerFactory
@@ -26,7 +25,7 @@ class UserService(
 
     // Get all users (paginated), excluding the admin itself
     @Transactional
-    fun getAllUsers(token: String, pageable: Pageable): Page<UserResponseDto> {
+    fun getAllUsers(token: String, pageable: Pageable): Page<UserResponse> {
         val userClaims = jwtTokenProvider.getUserDetailsFromToken(token)
 
         // Ensure the user is an ADMIN
@@ -44,7 +43,7 @@ class UserService(
 
     // Update user details (Only user can update themselves)
     @Transactional
-    fun updateUser(token: String, userId: Long, updateUserRequestDto: UpdateUserRequestDto): UserResponseDto {
+    fun updateUser(token: String, userId: Long, updateUserRequestDto: UpdateUserRequest): UserResponse {
         val userClaims = jwtTokenProvider.getUserDetailsFromToken(token)
 
         // Ensure the user can only update their own profile
@@ -88,8 +87,8 @@ class UserService(
     fun updateUser(
         token: String,
         userId: Long,
-        partialUpdateUserRequestDto: PartialUpdateUserRequestDto
-    ): UserResponseDto {
+        partialUpdateUserRequestDto: PartialUpdateUserRequest
+    ): UserResponse {
         val userClaims = jwtTokenProvider.getUserDetailsFromToken(token)
 
         // Ensure the user can only update their own profile
@@ -155,7 +154,7 @@ class UserService(
 
     // Fetch a user by ID (self-access or admin access only)
     @Transactional
-    fun getUserById(token: String, userId: Long): UserResponseDto {
+    fun getUserById(token: String, userId: Long): UserResponse {
         val userClaims = jwtTokenProvider.getUserDetailsFromToken(token)
 
         // Check if the requester is the user themselves or an admin
@@ -171,7 +170,7 @@ class UserService(
     }
 
     @Transactional
-    fun getUserByToken(token: String): UserResponseDto {
+    fun getUserByToken(token: String): UserResponse {
         val userClaims = jwtTokenProvider.getUserDetailsFromToken(token)
 
         // Fetch the user using the ID from the token

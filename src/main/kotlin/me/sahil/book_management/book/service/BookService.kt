@@ -3,9 +3,9 @@ package me.sahil.book_management.book.service
 import jakarta.transaction.Transactional
 import me.sahil.book_management.user.entity.User
 import me.sahil.book_management.auth.security.JwtTokenProvider
-import me.sahil.book_management.book.dto.BookPartialUpdateRequestDto
-import me.sahil.book_management.book.dto.BookRequestDto
-import me.sahil.book_management.book.dto.BookResponseDto
+import me.sahil.book_management.book.dto.BookPartialUpdateRequest
+import me.sahil.book_management.book.dto.BookRequest
+import me.sahil.book_management.book.dto.BookResponse
 import me.sahil.book_management.book.entity.Book
 import me.sahil.book_management.book.mapper.toBookResponseDto
 import me.sahil.book_management.book.repository.BookRepository
@@ -21,12 +21,12 @@ class BookService(
 ) {
 
     // List all books (paginated)
-    fun getAllBooks(pageable: Pageable): Page<BookResponseDto> {
+    fun getAllBooks(pageable: Pageable): Page<BookResponse> {
         return bookRepository.findAll(pageable).map { it.toBookResponseDto() }
     }
 
     // Add a new book (only AUTHORS can add)
-    fun addBook(token: String, bookRequestDto: BookRequestDto): BookResponseDto {
+    fun addBook(token: String, bookRequestDto: BookRequest): BookResponse {
         val userClaims = jwtTokenProvider.getUserDetailsFromToken(token)
 
         // Ensure the role is AUTHOR
@@ -71,7 +71,7 @@ class BookService(
 
     // Update a book (Authors can only edit their own books)
     @Transactional
-    fun updateBook(token: String, bookId: Long, bookRequestDto: BookRequestDto): BookResponseDto {
+    fun updateBook(token: String, bookId: Long, bookRequestDto: BookRequest): BookResponse {
         val userClaims = jwtTokenProvider.getUserDetailsFromToken(token)
 
         // Fetch the book to be updated
@@ -99,7 +99,7 @@ class BookService(
 
     // Partial update of a book (Authors can only partially update their own books)
     @Transactional
-    fun partialUpdateBook(token: String, bookId: Long, requestDto: BookPartialUpdateRequestDto): BookResponseDto {
+    fun partialUpdateBook(token: String, bookId: Long, requestDto: BookPartialUpdateRequest): BookResponse {
         val userClaims = jwtTokenProvider.getUserDetailsFromToken(token)
 
         // Fetch the book to be updated
@@ -123,7 +123,7 @@ class BookService(
         return bookRepository.save(updatedBook).toBookResponseDto()
     }
 
-    fun getBookById(bookId: Long): BookResponseDto {
+    fun getBookById(bookId: Long): BookResponse {
         // Fetch the book by ID from the repository
         val book = bookRepository.findById(bookId).orElseThrow {
             IllegalArgumentException("Book not found.")

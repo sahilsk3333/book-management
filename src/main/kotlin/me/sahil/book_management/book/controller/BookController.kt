@@ -1,8 +1,8 @@
 package me.sahil.book_management.book.controller
 
-import me.sahil.book_management.book.dto.BookPartialUpdateRequestDto
-import me.sahil.book_management.book.dto.BookRequestDto
-import me.sahil.book_management.book.dto.BookResponseDto
+import me.sahil.book_management.book.dto.BookPartialUpdateRequest
+import me.sahil.book_management.book.dto.BookRequest
+import me.sahil.book_management.book.dto.BookResponse
 import me.sahil.book_management.book.service.BookService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -15,7 +15,7 @@ class BookController(private val bookService: BookService) {
 
     // Get all books (paginated)
     @GetMapping
-    fun getAllBooks(pageable: Pageable): ResponseEntity<Page<BookResponseDto>> {
+    fun getAllBooks(pageable: Pageable): ResponseEntity<Page<BookResponse>> {
         return ResponseEntity.ok(bookService.getAllBooks(pageable))
     }
 
@@ -23,8 +23,8 @@ class BookController(private val bookService: BookService) {
     @PostMapping
     fun addBook(
         @RequestHeader("Authorization") token: String,
-        @RequestBody bookRequestDto: BookRequestDto
-    ): ResponseEntity<BookResponseDto> {
+        @RequestBody bookRequestDto: BookRequest
+    ): ResponseEntity<BookResponse> {
         return ResponseEntity.ok(bookService.addBook(token.removePrefix("Bearer "), bookRequestDto))
     }
 
@@ -43,8 +43,8 @@ class BookController(private val bookService: BookService) {
     fun updateBook(
         @RequestHeader("Authorization") token: String,
         @PathVariable bookId: Long,
-        @RequestBody bookRequestDto: BookRequestDto
-    ): ResponseEntity<BookResponseDto> {
+        @RequestBody bookRequestDto: BookRequest
+    ): ResponseEntity<BookResponse> {
         return ResponseEntity.ok(
             bookService.updateBook(token.removePrefix("Bearer "), bookId, bookRequestDto)
         )
@@ -54,15 +54,15 @@ class BookController(private val bookService: BookService) {
     fun partialUpdateBook(
         @RequestHeader("Authorization") token: String,
         @PathVariable bookId: Long,
-        @RequestBody bookPartialUpdateRequestDto: BookPartialUpdateRequestDto
-    ): ResponseEntity<BookResponseDto> {
+        @RequestBody bookPartialUpdateRequestDto: BookPartialUpdateRequest
+    ): ResponseEntity<BookResponse> {
         val updatedBook =
             bookService.partialUpdateBook(token.removePrefix("Bearer "), bookId, bookPartialUpdateRequestDto)
         return ResponseEntity.ok(updatedBook)
     }
 
     @GetMapping("/{bookId}")
-    fun getBook(@PathVariable id: Long): ResponseEntity<BookResponseDto> {
+    fun getBook(@PathVariable id: Long): ResponseEntity<BookResponse> {
         val bookResponseDto = bookService.getBookById(id)
         return ResponseEntity.ok(bookResponseDto)
     }

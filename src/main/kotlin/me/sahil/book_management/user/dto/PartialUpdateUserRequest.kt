@@ -1,10 +1,9 @@
 package me.sahil.book_management.user.dto
 
-import jakarta.validation.constraints.Size
 import me.sahil.book_management.common.role.Role
 
 
-data class PartialUpdateUserRequestDto(
+data class PartialUpdateUserRequest(
 
     val name: String?,
 

@@ -1,9 +1,9 @@
 package me.sahil.book_management.user.controller
 
 import jakarta.validation.Valid
-import me.sahil.book_management.user.dto.PartialUpdateUserRequestDto
-import me.sahil.book_management.user.dto.UpdateUserRequestDto
-import me.sahil.book_management.user.dto.UserResponseDto
+import me.sahil.book_management.user.dto.PartialUpdateUserRequest
+import me.sahil.book_management.user.dto.UpdateUserRequest
+import me.sahil.book_management.user.dto.UserResponse
 import me.sahil.book_management.user.service.UserService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -21,7 +21,7 @@ class UserController(
     fun getAllUsers(
         @RequestHeader("Authorization") token: String,
         pageable: Pageable
-    ): ResponseEntity<Page<UserResponseDto>> {
+    ): ResponseEntity<Page<UserResponse>> {
         val userList = userService.getAllUsers(token.removePrefix("Bearer "), pageable)
         return ResponseEntity.ok(userList)
     }
@@ -31,8 +31,8 @@ class UserController(
     fun updateUser(
         @RequestHeader("Authorization") token: String,
         @PathVariable userId: Long,
-        @Valid @RequestBody updateUserRequestDto: UpdateUserRequestDto
-    ): ResponseEntity<UserResponseDto> {
+        @Valid @RequestBody updateUserRequestDto: UpdateUserRequest
+    ): ResponseEntity<UserResponse> {
         val updatedUser = userService.updateUser(token.removePrefix("Bearer "), userId, updateUserRequestDto)
         return ResponseEntity.ok(updatedUser)
     }
@@ -42,8 +42,8 @@ class UserController(
     fun partialUpdateUser(
         @RequestHeader("Authorization") token: String,
         @PathVariable userId: Long,
-        @Valid @RequestBody partialUpdateUserRequestDto: PartialUpdateUserRequestDto
-    ): ResponseEntity<UserResponseDto> {
+        @Valid @RequestBody partialUpdateUserRequestDto: PartialUpdateUserRequest
+    ): ResponseEntity<UserResponse> {
         val updatedUser = userService.updateUser(token.removePrefix("Bearer "), userId, partialUpdateUserRequestDto)
         return ResponseEntity.ok(updatedUser)
     }
@@ -63,14 +63,14 @@ class UserController(
     fun getUserById(
         @RequestHeader("Authorization") token: String,
         @PathVariable userId: Long
-    ): ResponseEntity<UserResponseDto> {
+    ): ResponseEntity<UserResponse> {
         val user = userService.getUserById(token.removePrefix("Bearer "), userId)
         return ResponseEntity.ok(user)
     }
 
     // Endpoint to get the user's own details, no need to provide user ID
     @GetMapping("/profile")
-    fun getUserByToken(@RequestHeader("Authorization") token: String): ResponseEntity<UserResponseDto> {
+    fun getUserByToken(@RequestHeader("Authorization") token: String): ResponseEntity<UserResponse> {
         val user = userService.getUserByToken(token.removePrefix("Bearer "))
         return ResponseEntity.ok(user)
     }

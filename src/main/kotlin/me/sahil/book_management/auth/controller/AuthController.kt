@@ -3,6 +3,7 @@ package me.sahil.book_management.auth.controller
 import jakarta.validation.Valid
 import me.sahil.book_management.auth.dto.LoginRequest
 import me.sahil.book_management.auth.dto.RegisterRequest
+import me.sahil.book_management.auth.dto.UpdatePasswordRequest
 import me.sahil.book_management.auth.service.AuthService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -46,5 +47,28 @@ class AuthController(private val authService: AuthService) {
                 .body(mapOf("error" to "Unauthorized", "message" to ex.message))
         }
     }
+
+    @PatchMapping("/update-password")
+    fun updatePassword(
+        @RequestHeader("Authorization") token: String,
+        @Valid @RequestBody updatePasswordRequest: UpdatePasswordRequest,
+        result: BindingResult
+    ): ResponseEntity<Any> {
+        if (result.hasErrors()) {
+            val errors = result.allErrors.map { (it as FieldError).defaultMessage }.joinToString(", ")
+            return ResponseEntity.badRequest().body(mapOf("error" to "Validation failed", "message" to errors))
+        }
+
+        return try {
+            authService.updatePassword(token.removePrefix("Bearer "), updatePasswordRequest)
+            ResponseEntity.ok(mapOf("message" to "Password updated successfully"))
+        } catch (ex: IllegalArgumentException) {
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mapOf("error" to "Bad Request", "message" to ex.message))
+        } catch (ex: IllegalAccessException) {
+            ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(mapOf("error" to "Unauthorized", "message" to ex.message))
+        }
+    }
+
+
 }
 
