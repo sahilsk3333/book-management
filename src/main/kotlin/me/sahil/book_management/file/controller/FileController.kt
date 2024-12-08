@@ -18,9 +18,12 @@ class FileController(private val fileService: FileService) {
 
     // Endpoint to upload a file
     @PostMapping(ApiRoutes.FileRoutes.UPLOAD)
-    fun uploadFile(@RequestHeader("Authorization") token: String, @RequestParam("file") file: MultipartFile): ResponseEntity<String> {
+    fun uploadFile(
+        @RequestHeader("Authorization") token: String,
+        @RequestParam("file") file: MultipartFile
+    ): ResponseEntity<Map<String, Any>> {
         val uploadedFile = fileService.uploadFile(token.extractBearerToken(), file)
-        return ResponseEntity.ok("File uploaded successfully. Download URL: ${uploadedFile.downloadUrl}")
+        return ResponseEntity.ok(mapOf("message" to "File uploaded successfully", "file" to uploadedFile))
     }
 
     // Endpoint to get files uploaded by the current user
@@ -53,12 +56,18 @@ class FileController(private val fileService: FileService) {
         val inputStream = FileInputStream(targetFile.toFile())
 
         // Set response headers for file download
-        response.contentType = file.mimeType
-        response.setHeader("Content-Disposition", "attachment; filename=${file.fileName}")
-        response.setContentLength(targetFile.toFile().length().toInt())
+
+        response.apply {
+            contentType = file.mimeType
+            setHeader("Content-Disposition", "attachment; filename=${file.fileName}")
+            setContentLength(targetFile.toFile().length().toInt())
+        }
 
         // Stream the file to the client
-        inputStream.copyTo(response.outputStream)
-        inputStream.close()
+        inputStream.use {
+            it.copyTo(response.outputStream)
+        }
+
+
     }
 }

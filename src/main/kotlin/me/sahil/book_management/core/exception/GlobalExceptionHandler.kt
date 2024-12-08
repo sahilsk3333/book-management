@@ -55,6 +55,11 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
     }
 
+    @ExceptionHandler(NotFoundException::class)
+    fun handleNotFoundException(exception: NotFoundException): ResponseEntity<String> {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.message)
+    }
+
     @ExceptionHandler(Exception::class)
     fun handleGeneralException(e: Exception): ResponseEntity<Map<String, String>> {
         logger.error("Unexpected error: ${e.message}", e)

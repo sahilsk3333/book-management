@@ -9,6 +9,7 @@ import me.sahil.book_management.book.dto.BookResponse
 import me.sahil.book_management.book.entity.Book
 import me.sahil.book_management.book.mapper.toBookResponseDto
 import me.sahil.book_management.book.repository.BookRepository
+import me.sahil.book_management.core.exception.NotFoundException
 import me.sahil.book_management.core.role.Role
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -58,7 +59,7 @@ class BookServiceImpl(
 
         // Fetch the book to be deleted
         val book = bookRepository.findById(bookId).orElseThrow {
-            IllegalArgumentException("Book not found.")
+            NotFoundException("Book not found with id: $bookId")
         }
 
         // Check if the user is authorized to delete this book (Admin can delete any book, Author can only delete their own)
@@ -82,7 +83,7 @@ class BookServiceImpl(
 
         // Fetch the book to be updated
         val book = bookRepository.findById(bookId).orElseThrow {
-            IllegalArgumentException("Book not found.")
+            NotFoundException("Book not found with id: $bookId")
         }
 
         // Check if the user is the author of the book
@@ -114,7 +115,7 @@ class BookServiceImpl(
 
         // Fetch the book to be updated
         val book = bookRepository.findById(bookId).orElseThrow {
-            IllegalArgumentException("Book not found.")
+            NotFoundException("Book not found with id: $bookId")
         }
 
         // Check if the user is the author of the book
@@ -143,7 +144,7 @@ class BookServiceImpl(
     override fun getBookById(bookId: Long): BookResponse {
         // Fetch the book by ID from the repository
         val book = bookRepository.findById(bookId).orElseThrow {
-            IllegalArgumentException("Book not found.")
+            NotFoundException("Book not found with id: $bookId")
         }
 
         // Return the book as a response DTO

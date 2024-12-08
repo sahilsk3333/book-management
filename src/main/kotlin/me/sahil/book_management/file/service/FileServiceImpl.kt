@@ -1,6 +1,7 @@
 package me.sahil.book_management.file.service
 
 import me.sahil.book_management.auth.security.JwtTokenProvider
+import me.sahil.book_management.core.exception.NotFoundException
 import me.sahil.book_management.file.Entity.File
 import me.sahil.book_management.file.util.FileStorageUtil
 import me.sahil.book_management.file.dto.FileResponseDto
@@ -21,7 +22,7 @@ class FileServiceImpl(
 
     // Upload a file
     @Transactional
-    override fun uploadFile(token: String, file: MultipartFile): File {
+    override fun uploadFile(token: String, file: MultipartFile): FileResponseDto {
         // Get user from token
         val userClaims = jwtTokenProvider.getUserDetailsFromToken(token)
 
@@ -37,13 +38,13 @@ class FileServiceImpl(
             isUsed = false
         )
 
-        return fileRepository.save(newFile)
+        return fileRepository.save(newFile).toFileResponseDto()
     }
 
     // Mark a file as used
     @Transactional
     override fun markFileAsUsed(fileId: Long) {
-        val file = fileRepository.findById(fileId).orElseThrow { IllegalArgumentException("File not found") }
+        val file = fileRepository.findById(fileId).orElseThrow { NotFoundException("File not found with id: $fileId") }
         fileRepository.save(file.copy(isUsed = true))
     }
 
@@ -54,8 +55,8 @@ class FileServiceImpl(
     }
 
     // Get a file by download URL
-    override fun getFileByUrl(downloadUrl: String): File? {
-        return fileRepository.findByDownloadUrl(downloadUrl)
+    override fun getFileByUrl(downloadUrl: String): FileResponseDto? {
+        return fileRepository.findByDownloadUrl(downloadUrl)?.toFileResponseDto()
     }
 
     // Periodic cleanup for unused files
@@ -71,7 +72,7 @@ class FileServiceImpl(
     // Delete a file
     @Transactional
     override fun deleteFile(token: String, fileId: Long) {
-        val file = fileRepository.findById(fileId).orElseThrow { IllegalArgumentException("File not found") }
+        val file = fileRepository.findById(fileId).orElseThrow { NotFoundException("File not found with id: $fileId") }
         val userClaims = jwtTokenProvider.getUserDetailsFromToken(token)
 
         // Ensure that the file belongs to the current user

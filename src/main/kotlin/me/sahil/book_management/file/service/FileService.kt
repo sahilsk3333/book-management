@@ -7,13 +7,13 @@ import java.nio.file.Path
 
 interface FileService {
 
-    fun uploadFile(token: String, file: MultipartFile): File
+    fun uploadFile(token: String, file: MultipartFile): FileResponseDto
 
     fun markFileAsUsed(fileId: Long)
 
     fun getUserFiles(token: String): List<FileResponseDto>
 
-    fun getFileByUrl(downloadUrl: String): File?
+    fun getFileByUrl(downloadUrl: String): FileResponseDto?
 
     fun deleteFile(token: String, fileId: Long)
 

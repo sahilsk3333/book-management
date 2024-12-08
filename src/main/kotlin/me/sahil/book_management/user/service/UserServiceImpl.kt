@@ -1,6 +1,7 @@
 package me.sahil.book_management.user.service
 
 import me.sahil.book_management.auth.security.JwtTokenProvider
+import me.sahil.book_management.core.exception.NotFoundException
 import me.sahil.book_management.core.role.Role
 import me.sahil.book_management.file.repository.FileRepository
 import me.sahil.book_management.user.dto.PartialUpdateUserRequest
@@ -53,7 +54,7 @@ class UserServiceImpl(
 
         // Fetch the user to update
         val user = userRepository.findById(userId)
-            .orElseThrow { IllegalArgumentException("User not found") }
+            .orElseThrow { NotFoundException("User not found") }
 
         // Check if the new email is already taken by another user
         if (updateUserRequestDto.email != user.email && userRepository.existsByEmail(updateUserRequestDto.email)) {
@@ -102,7 +103,7 @@ class UserServiceImpl(
 
         // Fetch the user to update
         val user = userRepository.findById(userId)
-            .orElseThrow { IllegalArgumentException("User not found") }
+            .orElseThrow { NotFoundException("User not found") }
 
         // Check if the new email is already taken by another user
         if (partialUpdateUserRequestDto.email != null && partialUpdateUserRequestDto.email != user.email &&
@@ -149,7 +150,7 @@ class UserServiceImpl(
         }
 
         val userToDelete = userRepository.findById(userId)
-            .orElseThrow { IllegalArgumentException("User not found") }
+            .orElseThrow { NotFoundException("User not found") }
 
         // Ensure the user has a role of AUTHOR or READER
         if (userToDelete.role == Role.ADMIN) {
@@ -173,7 +174,7 @@ class UserServiceImpl(
 
         // Fetch the user from the database
         val user = userRepository.findById(userId)
-            .orElseThrow { IllegalArgumentException("User not found.") }
+            .orElseThrow { NotFoundException("User not found with id : $userId") }
 
         return user.toUserResponseDto()
     }
@@ -184,7 +185,7 @@ class UserServiceImpl(
 
         // Fetch the user using the ID from the token
         return userRepository.findById(userClaims.id).orElseThrow {
-            IllegalArgumentException("User not found.")
+            NotFoundException("User not found")
         }.toUserResponseDto()
     }
 

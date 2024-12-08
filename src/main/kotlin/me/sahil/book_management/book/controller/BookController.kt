@@ -9,6 +9,7 @@ import me.sahil.book_management.core.route.ApiRoutes
 import me.sahil.book_management.core.utils.extractBearerToken
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.BindException
 import org.springframework.validation.BindingResult
@@ -34,7 +35,10 @@ class BookController(private val bookService: BookService) {
         if (result.hasErrors()) {
             throw BindException(result)
         }
-        return ResponseEntity.ok(bookService.addBook(token.extractBearerToken(), bookRequestDto))
+        val addedBook = bookService.addBook(token.extractBearerToken(), bookRequestDto)
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(addedBook)
     }
 
     // Delete a book
