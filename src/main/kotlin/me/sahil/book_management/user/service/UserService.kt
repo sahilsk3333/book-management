@@ -24,14 +24,12 @@ interface UserService {
      * Updates the details of an existing user.
      *
      * @param token The authorization token of the currently authenticated user.
-     * @param userId The ID of the user to update.
      * @param updateUserRequestDto The DTO containing the updated user details.
      * @return The updated user response.
      * @throws NotFoundException if the user is not found.
      */
     fun updateUser(
         token: String,
-        userId: Long,
         updateUserRequestDto: UpdateUserRequest
     ): UserResponse
 
@@ -39,14 +37,12 @@ interface UserService {
      * Partially updates the details of an existing user.
      *
      * @param token The authorization token of the currently authenticated user.
-     * @param userId The ID of the user to update.
      * @param partialUpdateUserRequestDto The DTO containing the partial user details to update.
      * @return The updated user response.
      * @throws NotFoundException if the user is not found.
      */
     fun updateUser(
         token: String,
-        userId: Long,
         partialUpdateUserRequestDto: PartialUpdateUserRequest
     ): UserResponse
 

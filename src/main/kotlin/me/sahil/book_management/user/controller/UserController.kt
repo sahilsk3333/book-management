@@ -48,12 +48,9 @@ class UserController(
      * Endpoint to update user details.
      *
      * This endpoint is accessible only by the user themselves. The user can update their own details.
-     *
      * @param token The authentication token (Bearer token) provided in the Authorization header.
-     * @param userId The ID of the user to be updated.
      * @param updateUserRequestDto The request body containing the updated user details.
      * @return The updated user details.
-     * @throws UnauthorizedAccessException if the user tries to update another user's details.
      * @throws UserNotFoundException if the user with the provided ID does not exist.
      */
     @PutMapping(ApiRoutes.UserRoutes.UPDATE_USER)
@@ -62,7 +59,7 @@ class UserController(
         @PathVariable userId: Long,
         @Valid @RequestBody updateUserRequestDto: UpdateUserRequest
     ): ResponseEntity<UserResponse> {
-        val updatedUser = userService.updateUser(token.extractBearerToken(), userId, updateUserRequestDto)
+        val updatedUser = userService.updateUser(token.extractBearerToken(), updateUserRequestDto)
         return ResponseEntity.ok(updatedUser)
     }
 
@@ -72,19 +69,16 @@ class UserController(
      * This endpoint is accessible only by the user themselves. The user can partially update their own details.
      *
      * @param token The authentication token (Bearer token) provided in the Authorization header.
-     * @param userId The ID of the user to be updated.
      * @param partialUpdateUserRequestDto The request body containing the partial updated user details.
      * @return The updated user details.
-     * @throws UnauthorizedAccessException if the user tries to update another user's details.
      * @throws UserNotFoundException if the user with the provided ID does not exist.
      */
     @PatchMapping(ApiRoutes.UserRoutes.PATCH_USER)
     fun partialUpdateUser(
         @RequestHeader("Authorization") token: String,
-        @PathVariable userId: Long,
         @Valid @RequestBody partialUpdateUserRequestDto: PartialUpdateUserRequest
     ): ResponseEntity<UserResponse> {
-        val updatedUser = userService.updateUser(token.extractBearerToken(), userId, partialUpdateUserRequestDto)
+        val updatedUser = userService.updateUser(token.extractBearerToken(), partialUpdateUserRequestDto)
         return ResponseEntity.ok(updatedUser)
     }
 

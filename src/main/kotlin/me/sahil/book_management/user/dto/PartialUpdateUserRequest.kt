@@ -16,13 +16,13 @@ import me.sahil.book_management.core.role.Role
  */
 data class PartialUpdateUserRequest(
 
-    val name: String?,
+    val name: String? = null,
 
-    val email: String?,
+    val email: String? = null,
 
-    val role: Role?,
+    val role: Role? = null,
 
-    val age: Int?,
+    val age: Int? = null,
 
-    val image: String?
+    val image: String? = null
 )

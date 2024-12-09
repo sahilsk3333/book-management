@@ -54,7 +54,6 @@ class UserServiceImpl(
      * Updates the details of an existing user. Only the user can update their own profile.
      *
      * @param token The authorization token of the currently authenticated user.
-     * @param userId The ID of the user to update.
      * @param updateUserRequestDto The DTO containing the updated user details.
      * @return The updated user response.
      * @throws IllegalAccessException If the user is trying to update someone else's profile.
@@ -64,17 +63,12 @@ class UserServiceImpl(
     @Transactional
     override fun updateUser(
         token: String,
-        userId: Long,
         updateUserRequestDto: UpdateUserRequest
     ): UserResponse {
         val userClaims = jwtTokenProvider.getUserDetailsFromToken(token)
 
-        // Ensure the user can only update their own profile
-        if (userClaims.id != userId) {
-            throw IllegalAccessException("You can only update your own profile.")
-        }
 
-        val user = userRepository.findById(userId)
+        val user = userRepository.findById(userClaims.id)
             .orElseThrow { NotFoundException("User not found") }
 
         // Check if the new email is already taken
@@ -107,7 +101,6 @@ class UserServiceImpl(
      * Partially updates the details of an existing user. Only the user can update their own profile.
      *
      * @param token The authorization token of the currently authenticated user.
-     * @param userId The ID of the user to update.
      * @param partialUpdateUserRequestDto The DTO containing the partial user details.
      * @return The updated user response.
      * @throws IllegalAccessException If the user is trying to update someone else's profile.
@@ -117,17 +110,11 @@ class UserServiceImpl(
     @Transactional
     override fun updateUser(
         token: String,
-        userId: Long,
         partialUpdateUserRequestDto: PartialUpdateUserRequest
     ): UserResponse {
         val userClaims = jwtTokenProvider.getUserDetailsFromToken(token)
 
-        // Ensure the user can only update their own profile
-        if (userClaims.id != userId) {
-            throw IllegalAccessException("You can only update your own profile.")
-        }
-
-        val user = userRepository.findById(userId)
+        val user = userRepository.findById(userClaims.id)
             .orElseThrow { NotFoundException("User not found") }
 
         // Check if the new email is already taken
