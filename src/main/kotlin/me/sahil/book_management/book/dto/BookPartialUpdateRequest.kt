@@ -12,8 +12,8 @@ package me.sahil.book_management.book.dto
  * @property isbn The ISBN number of the book. It can be `null` if the ISBN is not being updated.
  */
 data class BookPartialUpdateRequest(
-    val name: String?,
-    val description: String?,
-    val pdfUrl: String?,
-    val isbn: String?
+    val name: String? = null,
+    val description: String? = null,
+    val pdfUrl: String? = null,
+    val isbn: String? = null
 )
