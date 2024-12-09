@@ -37,6 +37,4 @@ data class RegisterRequest(
     val role: Role,
 
     val age: Int?,
-
-    val image: String?
 )

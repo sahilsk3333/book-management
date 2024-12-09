@@ -30,6 +30,7 @@ dependencies {
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	testImplementation("org.springframework.security:spring-security-test")
 	testImplementation ("org.mockito.kotlin:mockito-kotlin:5.0.0")
+	testImplementation ("com.h2database:h2")
 
 
 	// validation

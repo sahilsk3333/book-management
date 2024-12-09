@@ -39,7 +39,6 @@ class AuthControllerTest {
             password = "password123",
             role = Role.READER,
             age = 30,
-            image = null
         )
 
         val userResponse = UserResponse(
@@ -108,7 +107,6 @@ class AuthControllerTest {
             password = "password123",
             role = Role.READER,
             age = 30,
-            image = "image.jpg"
         )
 
         mockMvc.perform(
@@ -130,7 +128,6 @@ class AuthControllerTest {
             password = "password123",
             role = Role.READER,
             age = 30,
-            image = null
         )
 
         mockMvc.perform(
@@ -153,7 +150,6 @@ class AuthControllerTest {
             password = "pass",
             role = Role.READER,
             age = 30,
-            image = null
         )
 
         mockMvc.perform(
@@ -174,7 +170,6 @@ class AuthControllerTest {
             password = "",  // Missing password for testing
             role = Role.READER,
             age = 30,
-            image = null
         )
 
         mockMvc.perform(

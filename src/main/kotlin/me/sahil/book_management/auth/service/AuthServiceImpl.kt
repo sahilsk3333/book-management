@@ -41,8 +41,7 @@ class AuthServiceImpl(
      * Registers a new user with the provided registration details.
      *
      * This method checks if the email already exists in the database, encodes the user's
-     * password, creates a new user entity, and saves it in the repository. If an image URL
-     * is provided, it checks if the file exists in the file repository and marks it as used.
+     * password, creates a new user entity, and saves it in the repository.
      *
      * @param registerRequest The registration request containing the user's details.
      * @return A pair containing the created `UserResponse` and a success message.
@@ -67,27 +66,10 @@ class AuthServiceImpl(
             password = encodedPassword,
             role = registerRequest.role,
             age = registerRequest.age,  // Optional field
-            image = registerRequest.image // Optional field
         )
 
         // Save the user to the database
         userRepository.save(user)
-
-        // If the image URL is provided, check if it exists in the file table and mark as used
-        registerRequest.image?.let { imageUrl ->
-            val file = fileRepository.findByDownloadUrl(imageUrl)
-            if (file != null) {
-                // Mark the file as used
-                fileRepository.save(
-                    file.copy(
-                        isUsed = true
-                    )
-                )
-                logger.info("Image URL $imageUrl marked as used")
-            } else {
-                logger.warn("No file found with the provided image URL: $imageUrl")
-            }
-        }
 
         logger.info("User registered successfully with email: ${registerRequest.email}")
         return Pair(user.toUserResponseDto(), "User registered successfully!")
