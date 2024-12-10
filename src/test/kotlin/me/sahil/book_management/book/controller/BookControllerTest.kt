@@ -142,7 +142,6 @@ class BookControllerTest @Autowired constructor(
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidBookRequest))
         )
-            // Expect a 400 Bad Request status
             .andExpect(status().isBadRequest)
             // Check if the response body contains the appropriate error message
             .andExpect(jsonPath("$.message").value("isbn: Invalid ISBN format, must be either ISBN-10 or ISBN-13"))
@@ -222,9 +221,7 @@ class BookControllerTest @Autowired constructor(
 
     @Test
     fun `should delete a book and return a success message`() {
-        val bookId = 1L  // The ID of the book to be deleted
-
-        // Mock the deleteBook method to do nothing (since it returns void)
+        val bookId = 1L
         doNothing().`when`(bookService).deleteBook(any(), eq(bookId))
 
         // Perform the DELETE request
@@ -269,7 +266,6 @@ class BookControllerTest @Autowired constructor(
                 .header("Authorization", "Bearer $token")
                 .accept(MediaType.APPLICATION_JSON)
         )
-            // Expect status 200 OK
             .andExpect(status().isOk)
             // Check that the response body contains the correct book details
             .andExpect(jsonPath("$.id").value(bookId))
