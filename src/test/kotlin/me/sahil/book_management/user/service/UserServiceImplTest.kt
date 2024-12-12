@@ -120,7 +120,7 @@ class UserServiceImplTest @Autowired constructor(
     fun `should update user details partially`() {
         val partialUpdateRequest = PartialUpdateUserRequest(name = "Partially Updated User")
 
-        val updatedUser = userService.updateUser(authorToken,partialUpdateRequest)
+        val updatedUser = userService.patchUser(authorToken,partialUpdateRequest)
 
         assertEquals("Partially Updated User", updatedUser.name)
     }

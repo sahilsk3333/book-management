@@ -108,7 +108,7 @@ class UserServiceImpl(
      * @throws IllegalArgumentException If the email is already in use by another user.
      */
     @Transactional
-    override fun updateUser(
+    override fun patchUser(
         token: String,
         partialUpdateUserRequestDto: PartialUpdateUserRequest
     ): UserResponse {

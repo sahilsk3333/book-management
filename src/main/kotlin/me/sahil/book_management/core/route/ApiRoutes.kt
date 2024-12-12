@@ -47,11 +47,11 @@ sealed class ApiRoutes {
         /** Route for retrieving a user by ID. */
         const val GET_USER_BY_ID = "/{userId}"
 
-        /** Route for updating user details by ID. */
-        const val UPDATE_USER = "/{userId}"
+        /** Route for updating user details. */
+        const val UPDATE_USER = ""
 
-        /** Route for partially updating user details by ID. */
-        const val PATCH_USER = "/{userId}"
+        /** Route for partially updating user details. */
+        const val PATCH_USER = ""
 
         /** Route for deleting a user by ID. */
         const val DELETE_USER = "/{userId}"

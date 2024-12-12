@@ -41,7 +41,7 @@ interface UserService {
      * @return The updated user response.
      * @throws NotFoundException if the user is not found.
      */
-    fun updateUser(
+    fun patchUser(
         token: String,
         partialUpdateUserRequestDto: PartialUpdateUserRequest
     ): UserResponse

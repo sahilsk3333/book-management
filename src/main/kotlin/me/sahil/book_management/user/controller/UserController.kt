@@ -51,12 +51,10 @@ class UserController(
      * @param token The authentication token (Bearer token) provided in the Authorization header.
      * @param updateUserRequestDto The request body containing the updated user details.
      * @return The updated user details.
-     * @throws UserNotFoundException if the user with the provided ID does not exist.
      */
     @PutMapping(ApiRoutes.UserRoutes.UPDATE_USER)
     fun updateUser(
         @RequestHeader("Authorization") token: String,
-        @PathVariable userId: Long,
         @Valid @RequestBody updateUserRequestDto: UpdateUserRequest
     ): ResponseEntity<UserResponse> {
         val updatedUser = userService.updateUser(token.extractBearerToken(), updateUserRequestDto)
@@ -78,7 +76,7 @@ class UserController(
         @RequestHeader("Authorization") token: String,
         @Valid @RequestBody partialUpdateUserRequestDto: PartialUpdateUserRequest
     ): ResponseEntity<UserResponse> {
-        val updatedUser = userService.updateUser(token.extractBearerToken(), partialUpdateUserRequestDto)
+        val updatedUser = userService.patchUser(token.extractBearerToken(), partialUpdateUserRequestDto)
         return ResponseEntity.ok(updatedUser)
     }
 
@@ -97,9 +95,9 @@ class UserController(
     fun deleteUser(
         @RequestHeader("Authorization") token: String,
         @PathVariable userId: Long
-    ): ResponseEntity<String> {
+    ): ResponseEntity<Map<String, String>>  {
         userService.deleteUser(token.extractBearerToken(), userId)
-        return ResponseEntity.ok("User with ID $userId has been deleted successfully.")
+        return ResponseEntity.ok(mapOf("message" to "User with ID $userId has been deleted successfully."))
     }
 
     /**
