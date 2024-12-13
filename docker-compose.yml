@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  app:
+    image: book-management
+    container_name: book-management-container
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+    depends_on:
+      - db
+    networks:
+      - book-management-network
+
+  db:
+    image: postgres:13
+    container_name: book-management-db
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - book-management-network
+
+networks:
+  book-management-network:
+    driver: bridge
