@@ -133,6 +133,8 @@ For testing and exploring the API, Postman collection and environment files are 
 
 The Postman collection includes all API endpoints with pre-configured request parameters and headers. The environment file contains the necessary variables like `baseUrl` and `jwtToken` for seamless testing.
 
+You can also test the live APIs using the base URL: https://book-management-uwna.onrender.com.
+
 ---
 
 ## Useful Commands
